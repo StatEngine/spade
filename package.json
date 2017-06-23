@@ -1,60 +1,69 @@
 {
-    "name": "react-base",
-    "productName": "react-base",
-    "version": "1.0.0",
-    "description": "My Electron application description",
-    "main": "src/index.js",
-    "scripts": {
-        "start": "electron-forge start",
-        "package": "electron-forge package",
-        "make": "electron-forge make",
-        "lint": "echo \"No linting configured\""
-    },
-    "keywords": [],
-    "author": "syrusm",
-    "license": "MIT",
-    "config": {
-        "forge": {
-            "make_targets": {
-                "win32": [
-                    "squirrel"
-                ],
-                "darwin": [
-                    "zip"
-                ],
-                "linux": [
-                    "deb",
-                    "rpm"
-                ]
-            },
-            "electronPackagerConfig": {},
-            "electronWinstallerConfig": {
-                "name": "react_base"
-            },
-            "electronInstallerDebian": {},
-            "electronInstallerRedhat": {},
-            "github_repository": {
-                "owner": "",
-                "name": ""
-            },
-            "windowsStoreConfig": {
-                "packageName": "",
-                "name": "reactbase"
-            }
-        }
-    },
-    "dependencies": {
-        "electron-compile": "^6.4.1",
-        "electron-devtools-installer": "^2.0.1",
-        "react": "^15.4.1",
-        "react-dom": "^15.4.1",
-        "react-hot-loader": "^3.0.0-beta.6"
-    },
-    "devDependencies": {
-        "babel-plugin-transform-async-to-generator": "^6.24.1",
-        "babel-plugin-transform-es2015-classes": "^6.24.1",
-        "babel-preset-env": "^1.5.2",
-        "babel-preset-react": "^6.24.1",
-        "electron-prebuilt-compile": "1.6.11"
+  "name": "spade",
+  "productName": "spade",
+  "version": "0.1.0",
+  "description": "Send data to StatEngine",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "lint": "./node_modules/eslint/bin/eslint.js --ext=jsx --ext=js ."
+  },
+  "keywords": [],
+  "author": "contact@prominentedge.com",
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb",
+          "rpm"
+        ]
+      },
+      "electronPackagerConfig": {},
+      "electronWinstallerConfig": {
+        "name": "spade"
+      },
+      "electronInstallerDebian": {},
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "",
+        "name": ""
+      },
+      "windowsStoreConfig": {
+        "packageName": "",
+        "name": "spade"
+      }
     }
+  },
+  "dependencies": {
+    "electron": "^1.6.11",
+    "electron-compile": "^6.4.1",
+    "electron-devtools-installer": "^2.0.1",
+    "electron-settings": "^3.1.1",
+    "material-ui": "^0.18.3",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "react-hot-loader": "^3.0.0-beta.6",
+    "react-tap-event-plugin": "^2.0.1"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-preset-env": "^1.5.2",
+    "babel-preset-react": "^6.24.1",
+    "electron-prebuilt-compile": "1.6.11",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^15.0.1",
+    "eslint-plugin-import": "^2.6.0",
+    "eslint-plugin-jsx-a11y": "^5.0.3",
+    "eslint-plugin-react": "^7.1.0"
+  }
 }

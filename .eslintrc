@@ -1,5 +1,5 @@
 {
-  "extends": "eslint-config-airbnb",
+  "extends": "airbnb",
   "rules": {
     "import/extensions": 0,
     "import/no-extraneous-dependencies": 0,
@@ -7,4 +7,17 @@
     "linebreak-style": 0,
     "react/prefer-stateless-function": 0
   }
+  "plugins": [
+      "react",
+      "jsx-a11y",
+      "import"
+  ],
+  "globals": {
+    "React": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
 }
