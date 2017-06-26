@@ -4,6 +4,11 @@ import RaisedButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import Settings from 'electron-settings';
+import gulp from 'gulp';
+import watch from 'gulp-watch'
+
+const dialog = require('electron').remote.dialog
+
 
 // Needed for onTouchTap
 import injectTapEventPlugin from 'react-tap-event-plugin';
@@ -26,6 +31,14 @@ export default class App extends React.Component {
     };
   }
 
+  chooseSource(e) {
+    dialog.showOpenDialog({
+      title: 'Choose Source Directory',
+      properties: ['openDirectory']
+    },function(filePaths) {
+      watch(filePaths[0]).pipe(gulp.dest('processed'))
+    })
+  }
   handleTextFieldChange(e) {
     console.log('-- handler... ');
     this.state[e.target.id] = e.target.value;
@@ -87,6 +100,14 @@ export default class App extends React.Component {
                 label="Save"
                 style={{ margin: 12 }}
               />
+              <RaisedButton
+                label="Choose a source directory"
+                labelPosition="before"
+                containerElement="label"
+                onClick={this.chooseSource}
+              >
+              </RaisedButton>
+
             </form>
           </div>
         </div>
