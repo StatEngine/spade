@@ -8,7 +8,8 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "lint": "./node_modules/eslint/bin/eslint.js --ext=jsx --ext=js ."
+    "make-win": "electron-forge make --arch ia32 --platform win32",
+    "lint": "./node_modules/eslint/bin/eslint.js --ext=jsx --ext=js ./src"
   },
   "keywords": [],
   "author": "contact@prominentedge.com",
@@ -59,6 +60,7 @@
     "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-preset-env": "^1.5.2",
     "babel-preset-react": "^6.24.1",
+    "electron-forge": "^3.0.5",
     "electron-prebuilt-compile": "1.6.11",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.1",
