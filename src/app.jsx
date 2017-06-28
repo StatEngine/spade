@@ -6,6 +6,7 @@ import AppBar from 'material-ui/AppBar';
 import Settings from 'electron-settings';
 import gulp from 'gulp';
 import watch from 'gulp-watch'
+import clean from 'gulp-clean'
 
 const dialog = require('electron').remote.dialog
 
@@ -29,16 +30,32 @@ export default class App extends React.Component {
       sourceFolder: '',
       destinationFolder: '',
     };
+
+    if( this.state['sourceFolder'] !== '') {
+      this.performWatch(this.state['sourceFolder']);
+    }
   }
 
   chooseSource(e) {
+    let self = this;
     dialog.showOpenDialog({
       title: 'Choose Source Directory',
       properties: ['openDirectory']
     },function(filePaths) {
-      watch(filePaths[0]).pipe(gulp.dest('processed'))
+      self.state['sourceFolder'] = filePaths[0];
+      self.setState(self.state);
+      self.performWatch(filePaths[0]);
     })
   }
+
+  performWatch(directoryToWatch) {
+    console.log('Performing watch on ', directoryToWatch);
+    let watchPattern = directoryToWatch + '\\*'
+    watch(watchPattern, { events: ['add']})
+    .pipe(clean({force: true}))
+    .pipe(gulp.dest('processed'));
+  }
+
   handleTextFieldChange(e) {
     console.log('-- handler... ');
     this.state[e.target.id] = e.target.value;
@@ -104,7 +121,7 @@ export default class App extends React.Component {
                 label="Choose a source directory"
                 labelPosition="before"
                 containerElement="label"
-                onClick={this.chooseSource}
+                onClick={this.chooseSource.bind(this)}
               >
               </RaisedButton>
 
