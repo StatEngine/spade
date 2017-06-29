@@ -7,9 +7,19 @@ import Settings from 'electron-settings';
 import gulp from 'gulp';
 import watch from 'gulp-watch'
 import clean from 'gulp-clean'
+import plumber from 'gulp-plumber'
 
 const dialog = require('electron').remote.dialog
 
+
+var config = {
+  accessKeyId: "YOURACCESSKEY",
+  secretAccessKey: "YOUACCESSSECRET"
+}
+
+var s3 = require('gulp-s3-upload')(config);
+
+let self = null;
 
 // Needed for onTouchTap
 import injectTapEventPlugin from 'react-tap-event-plugin';
@@ -21,6 +31,7 @@ export default class App extends React.Component {
 
   constructor(props) {
     super(props);
+    self = this;
     this.saveSettings = this.saveSettings.bind(this);
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
     this.state = Settings.get('state') || {
@@ -37,7 +48,6 @@ export default class App extends React.Component {
   }
 
   chooseSource(e) {
-    let self = this;
     dialog.showOpenDialog({
       title: 'Choose Source Directory',
       properties: ['openDirectory']
@@ -48,11 +58,17 @@ export default class App extends React.Component {
     })
   }
 
+  onStreamError(e) {
+    console.log(e);
+  }
+
   performWatch(directoryToWatch) {
     console.log('Performing watch on ', directoryToWatch);
     let watchPattern = directoryToWatch + '\\*'
-    watch(watchPattern, { events: ['add']})
+    watch(watchPattern, { events: ['add'], awaitWriteFinish: true, ignoreInitial: false})
+    .pipe(plumber(self.onStreamError))
     .pipe(clean({force: true}))
+    .pipe(s3({ Bucket: 'bucketName', ACL: 'public-read'}))
     .pipe(gulp.dest('processed'));
   }
 
