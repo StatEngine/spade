@@ -1,5 +1,6 @@
 import React from 'react';
 import TextField from 'material-ui/TextField';
+import Checkbox from 'material-ui/Checkbox';
 import RaisedButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
@@ -8,9 +9,9 @@ import gulp from 'gulp';
 import watch from 'gulp-watch'
 import clean from 'gulp-clean'
 import plumber from 'gulp-plumber'
+import {spade} from './spade';
 
 const dialog = require('electron').remote.dialog
-
 
 var config = {
   accessKeyId: "YOURACCESSKEY",
@@ -33,6 +34,7 @@ export default class App extends React.Component {
     super(props);
     self = this;
     this.saveSettings = this.saveSettings.bind(this);
+    this.toggleCheckbox = this.toggleCheckbox.bind(this);
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
     this.state = Settings.get('state') || {
       deparmentId: '1234',
@@ -40,6 +42,7 @@ export default class App extends React.Component {
       password: '',
       sourceFolder: '',
       destinationFolder: '',
+      consented: true
     };
 
     if( this.state['sourceFolder'] !== '') {
@@ -75,7 +78,12 @@ export default class App extends React.Component {
   handleTextFieldChange(e) {
     console.log('-- handler... ');
     this.state[e.target.id] = e.target.value;
-    this.setState(this.state);
+  }
+
+  toggleCheckbox(e) {
+    var state = {};
+    state[e.target.id] = e.target.checked;
+    this.setState(state);
   }
 
   saveSettings(e) {
@@ -127,6 +135,14 @@ export default class App extends React.Component {
                 value={this.state.destinationFolder}
                 onChange={this.handleTextFieldChange}
               /><br />
+              <br />
+              <Checkbox
+                id="consented"
+                label="Send diagnosis statistics."
+                style={{marginBottom: 16}}
+                onCheck={this.toggleCheckbox}
+                checked={this.state.consented}
+              />
               <br />
               <RaisedButton
                 type="submit"

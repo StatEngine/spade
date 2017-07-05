@@ -1,7 +1,7 @@
 {
   "name": "spade",
   "productName": "spade",
-  "version": "0.1.0",
+  "version": "0.1.0dev",
   "description": "Send data to StatEngine",
   "main": "src/index.js",
   "scripts": {
