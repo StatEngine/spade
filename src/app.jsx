@@ -5,28 +5,22 @@ import RaisedButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import Settings from 'electron-settings';
-import gulp from 'gulp';
-import watch from 'gulp-watch'
-import clean from 'gulp-clean'
-import plumber from 'gulp-plumber'
-import {spade} from './spade';
+import path from 'path';
+import fs from 'fs';
+import mvElseCp from 'mv';
+import watch from 'gulp-watch';
+
 
 const dialog = require('electron').remote.dialog
 
-var config = {
-  accessKeyId: "YOURACCESSKEY",
-  secretAccessKey: "YOUACCESSSECRET"
-}
+const config = {
+  accessKeyId: 'YOURACCESSKEY',
+  secretAccessKey: 'YOUACCESSSECRET',
+};
 
-var s3 = require('gulp-s3-upload')(config);
+const s3 = require('gulp-s3-upload')(config);
 
 let self = null;
-
-// Needed for onTouchTap
-import injectTapEventPlugin from 'react-tap-event-plugin';
-
-injectTapEventPlugin();
-
 
 export default class App extends React.Component {
 
@@ -45,34 +39,81 @@ export default class App extends React.Component {
       consented: true
     };
 
-    if( this.state['sourceFolder'] !== '') {
-      this.performWatch(this.state['sourceFolder']);
+    if (this.state.sourceFolder !== '') {
+      this.performWatch(this.state.sourceFolder);
     }
   }
 
-  chooseSource(e) {
+  chooseSource() {
     dialog.showOpenDialog({
       title: 'Choose Source Directory',
-      properties: ['openDirectory']
-    },function(filePaths) {
-      self.state['sourceFolder'] = filePaths[0];
+      properties: ['openDirectory'],
+    },
+    (filePaths) => {
+      self.state.sourceFolder = filePaths[0];
       self.setState(self.state);
       self.performWatch(filePaths[0]);
-    })
+    });
   }
 
+/*
   onStreamError(e) {
     console.log(e);
   }
+*/
 
   performWatch(directoryToWatch) {
     console.log('Performing watch on ', directoryToWatch);
-    let watchPattern = directoryToWatch + '\\*'
-    watch(watchPattern, { events: ['add'], awaitWriteFinish: true, ignoreInitial: false})
+    const pattern = `${directoryToWatch}\\*`;
+    const destDir = path.normalize(`${directoryToWatch}${path.sep}processed`);
+
+    watch(
+      pattern,
+      {
+        events: ['add'],
+        awaitWriteFinish: true,
+        ignoreInitial: false,
+        read: false,
+      },
+      (event) => {
+        const basename = path.basename(event.path);
+        const sourceFile = event.path;
+        const destFile = `${destDir}${path.sep}${basename}`;
+        console.log('Event: ', event, 'mv source: ', sourceFile,
+        'mv dest: ', destFile);
+
+        // TODO: send sourceFile to s3. If it failes to upload, do not proceed
+
+        // it first created all the necessary directories, and then
+        // tried fs.rename, then falls back to using ncp to copy the dir
+        // to dest and then rimraf to remove the source dir
+        mvElseCp(
+          sourceFile,
+          destFile,
+          { mkdirp: true },  // TODO: when folder didn't exist, it created it
+                             // but it deleted the files instead of mv!
+          (mvErr) => {
+            if (!mvErr) {
+              // if mvElseCp succeeds, make sure source file is gone
+              // TODO: double check mvElseCp implementation
+              if (fs.existsSync(event.path)) {
+                fs.unlink(event.path, (rmErr) => {
+                  console.log(`====[ Remove failed for ${event.path}`, rmErr);
+                });
+              }
+            } else {
+              console.log('----[ mvElsecp failed. ', mvErr);
+            }
+          },
+        );
+      },
+    );
+    /*
     .pipe(plumber(self.onStreamError))
     .pipe(clean({force: true}))
-    .pipe(s3({ Bucket: 'bucketName', ACL: 'public-read'}))
-    .pipe(gulp.dest('processed'));
+    //.pipe(s3({ Bucket: 'bucketName', ACL: 'public-read'}))
+    .pipe(gulp.dest(directoryToWatch + '/processed'));
+    */
   }
 
   handleTextFieldChange(e) {
@@ -154,9 +195,7 @@ export default class App extends React.Component {
                 labelPosition="before"
                 containerElement="label"
                 onClick={this.chooseSource.bind(this)}
-              >
-              </RaisedButton>
-
+              />
             </form>
           </div>
         </div>
