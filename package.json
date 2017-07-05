@@ -4,6 +4,7 @@
   "version": "0.1.0dev",
   "description": "Send data to StatEngine",
   "main": "src/index.js",
+  "repository": "StatEngine/spade",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
