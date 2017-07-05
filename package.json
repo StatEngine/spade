@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "author": "contact@prominentedge.com",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "config": {
     "forge": {
       "make_targets": {
