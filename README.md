@@ -17,3 +17,7 @@ npm make
 ### Other
 electron-forge make --arch ia32 --platform win32
 electron-forge make --arch x64 --platform darwin
+
+## get the linter working in atom
+apm install linter-eslint
+Í
