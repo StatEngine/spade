@@ -5,11 +5,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import Settings from 'electron-settings';
+<<<<<<< HEAD
 import path from 'path';
 import fs from 'fs';
 import mvElseCp from 'mv';
 import watch from 'gulp-watch';
 
+=======
+>>>>>>> 1st pass at app with multiple source file watch actions
 
 const dialog = require('electron').remote.dialog
 
@@ -40,7 +43,7 @@ export default class App extends React.Component {
     };
 
     if (this.state.sourceFolder !== '') {
-      this.performWatch(this.state.sourceFolder);
+      //this.performWatch(this.state.sourceFolder);
     }
   }
 
@@ -61,60 +64,6 @@ export default class App extends React.Component {
     console.log(e);
   }
 */
-
-  performWatch(directoryToWatch) {
-    console.log('Performing watch on ', directoryToWatch);
-    const pattern = `${directoryToWatch}\\*`;
-    const destDir = path.normalize(`${directoryToWatch}${path.sep}processed`);
-
-    watch(
-      pattern,
-      {
-        events: ['add'],
-        awaitWriteFinish: true,
-        ignoreInitial: false,
-        read: false,
-      },
-      (event) => {
-        const basename = path.basename(event.path);
-        const sourceFile = event.path;
-        const destFile = `${destDir}${path.sep}${basename}`;
-        console.log('Event: ', event, 'mv source: ', sourceFile,
-        'mv dest: ', destFile);
-
-        // TODO: send sourceFile to s3. If it failes to upload, do not proceed
-
-        // it first created all the necessary directories, and then
-        // tried fs.rename, then falls back to using ncp to copy the dir
-        // to dest and then rimraf to remove the source dir
-        mvElseCp(
-          sourceFile,
-          destFile,
-          { mkdirp: true },  // TODO: when folder didn't exist, it created it
-                             // but it deleted the files instead of mv!
-          (mvErr) => {
-            if (!mvErr) {
-              // if mvElseCp succeeds, make sure source file is gone
-              // TODO: double check mvElseCp implementation
-              if (fs.existsSync(event.path)) {
-                fs.unlink(event.path, (rmErr) => {
-                  console.log(`====[ Remove failed for ${event.path}`, rmErr);
-                });
-              }
-            } else {
-              console.log('----[ mvElsecp failed. ', mvErr);
-            }
-          },
-        );
-      },
-    );
-    /*
-    .pipe(plumber(self.onStreamError))
-    .pipe(clean({force: true}))
-    //.pipe(s3({ Bucket: 'bucketName', ACL: 'public-read'}))
-    .pipe(gulp.dest(directoryToWatch + '/processed'));
-    */
-  }
 
   handleTextFieldChange(e) {
     console.log('-- handler... ');
@@ -190,12 +139,6 @@ export default class App extends React.Component {
                 label="Save"
                 style={{ margin: 12 }}
               />
-              <RaisedButton
-                label="Choose a source directory"
-                labelPosition="before"
-                containerElement="label"
-                onClick={this.chooseSource.bind(this)}
-              />
             </form>
           </div>
         </div>
@@ -204,6 +147,14 @@ export default class App extends React.Component {
 }
 
 /**
+<RaisedButton
+  label="Choose a source directory"
+  labelPosition="before"
+  containerElement="label"
+  onClick={this.chooseSource.bind(this)}
+/>
+
+
  <RaisedButton
  containerElement='label' // <-- Just add me!
  label='source'>

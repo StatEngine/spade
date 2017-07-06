@@ -8,8 +8,15 @@ export default class DestinationS3Action extends DestinationAction {
   }
 
   run(filename) {
-    console.log('S3Destination.run sending file to S3: ', filename, this.conf);
-    return true;
+    return new Promise((resolve, reject) => {
+      if (!filename) {
+        reject();
+      } else {
+        console.log('S3Destination.run sending file to S3: ', filename,
+        this.conf);
+        resolve();
+      }
+    });
   }
 
   finalize() {

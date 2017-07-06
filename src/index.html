@@ -10,18 +10,15 @@
 <script type="text/jsx">
 import React from 'react';
 import ReactDOM from 'react-dom';
-<<<<<<< HEAD
-import {AppContainer} from 'react-hot-loader';
-=======
 import { AppContainer } from 'react-hot-loader';
-import init from './main';
->>>>>>> separated actions for ease of maintenance
+import Main from './main';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import actions from './actions';
 
 injectTapEventPlugin();
 
-init();
+let m = new Main();
+m.init();
 
 const render = () => {
   const App = require('./app').default;
