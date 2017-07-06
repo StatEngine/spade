@@ -1,0 +1,38 @@
+{
+  "department-id": "12345",
+  "destinations": {
+    "incidents": {
+      "s3": {
+        "Bucket": "my-bucket",
+        "folder": "my-folder",
+        "accessKeyId": "my-username",
+        "secretKey": "JKHVGCJC"
+      }
+    }
+  },
+  "sources": {
+    "cadFiles": {
+      "destination": "incidents",
+      "fileWatch": {
+        "folder": "/Users/syrusm/dev/stat-engine/spade-react/cad-folder",
+        "processed": {
+          "move": {
+            "folder": "./processed"
+          }
+        }
+      }
+    },
+    "otherFiles": {
+      "destination": "incidents",
+      "fileWatch": {
+        "folder": "/Users/syrusm/dev/stat-engine/spade-react/other-folder",
+        "processed": {
+          "move": {
+            "folder": "./processed"
+          }
+        }
+      }
+    }
+
+  }
+}

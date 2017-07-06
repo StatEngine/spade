@@ -1,0 +1,90 @@
+{
+  "department-id": "12345",
+  "time-zone": {
+    "auto": true
+  },
+  "destinations": {
+    "incidents": {
+      "s3": {
+        "Bucket": "my-bucket",
+        "folder": "my-folder",
+        "accessKeyId": "my-username",
+        "secretKey": "JKHVGCJC"
+      }
+    },
+    "staffing": {
+      "s3": {
+        "Bucket": "my-bucket",
+        "folder": "my-folder",
+        "accessKeyId": "my-username",
+        "secretKey": "JKHVGCJC"
+      }
+    },
+    "inspections": {
+      "http": {
+        "uri": "https://my/endpoint",
+        "method": "post",
+        "headers": {
+          "username": "user10",
+          "password": "JKHVGCJC"
+        }
+      }
+    }
+  },
+  "sources": {
+    "rms": {
+      "enabled": true,
+      "destination": "incidents",
+      "trigger": {
+        "cron": "*/5 * * * *",
+        "dabaseModifiedTrigger": false
+      },
+      "run": "intergraph-HHJUK",
+      "mssql": {
+        "user": "username",
+        "password": "my-password",
+        "server": "localhost",
+        "database": "data",
+        "options": {
+            "encrypt": true
+        }
+      }
+    },
+    "staffing": {
+      "enabled": true,
+      "destination": "staffing",
+      "trigger": {
+        "cron": "*/5 * * * *"
+      },
+      "run": "custom-b-g",
+      "pg": {
+        "user": "foo",
+        "database": "my_db",
+        "password": "secret",
+        "host": "localhost",
+        "port": 5432
+      }
+    },
+    "cadFiles": {
+      "enabled": false,
+      "destination": "incidents",
+      "trigger": {
+        "onFileModified": true,
+        "onFileAdded": true
+      },
+      "fileWatch": {
+        "folder": "X:/CAD_EXPORTS/StatEngine",
+        "processed": {
+          "move": {
+            "enabled": true,
+            "folder": "./processed"
+          },
+          "rename": {
+            "enabled": false,
+            "filename": "done_{filename}.{ext}"
+          }
+        }
+      }
+    }
+  }
+}
