@@ -46,8 +46,10 @@ export default class Main {
       }
     }
 
-    for (let i = 0; i < this.sources.length; i += 1) {
-      this.sources[i].init();
+    const createdKeys = Object.keys(this.sources);
+    for (let i = 0; i < createdKeys.length; i += 1) {
+      const key = createdKeys[i];
+      this.sources[key].init();
     }
   }
 
