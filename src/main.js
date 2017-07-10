@@ -30,8 +30,10 @@ export default class Main {
 
     // call init on the destinations. Consider calling from source.init if
     // init was not run already
-    for (let i = 0; i < this.destinations.length; i += 1) {
-      this.destinations[i].init();
+    let createdKeys = Object.keys(this.destinations);
+    for (let i = 0; i < createdKeys.length; i += 1) {
+      const key = createdKeys[i];
+      this.destinations[key].init();
     }
 
     const sourceKeys = Object.keys(config.sources);
@@ -46,7 +48,7 @@ export default class Main {
       }
     }
 
-    const createdKeys = Object.keys(this.sources);
+    createdKeys = Object.keys(this.sources);
     for (let i = 0; i < createdKeys.length; i += 1) {
       const key = createdKeys[i];
       this.sources[key].init();
