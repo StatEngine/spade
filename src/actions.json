@@ -32,7 +32,24 @@
           }
         }
       }
+    },
+    "cadDb": {
+      "enabled": true,
+      "destination": "incidents",
+      "trigger": {
+        "schedule": "*/5 * * * *"
+      },
+      "tritech": {
+        "mssql": {
+          "user": "username",
+          "password": "my-password",
+          "server": "localhost",
+          "database": "data",
+          "options": {
+              "encrypt": true
+          }
+        }
+      }
     }
-
   }
 }

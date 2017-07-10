@@ -36,7 +36,7 @@
       "enabled": true,
       "destination": "incidents",
       "trigger": {
-        "cron": "*/5 * * * *",
+        "schedule": "*/5 * * * *",
         "dabaseModifiedTrigger": false
       },
       "run": "intergraph-HHJUK",
@@ -54,7 +54,7 @@
       "enabled": true,
       "destination": "staffing",
       "trigger": {
-        "cron": "*/5 * * * *"
+        "schedule": "*/5 * * * *"
       },
       "run": "custom-b-g",
       "pg": {

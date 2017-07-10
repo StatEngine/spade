@@ -22,9 +22,16 @@ export default class Main {
       const action = Main.createDestinationAction(conf);
       if (action) {
         this.destinations[key] = action;
+        action.init();
       } else {
         console.log('====[ Skipping, faile to process destination action: ', key);
       }
+    }
+
+    // call init on the destinations. Consider calling from source.init if
+    // init was not run already
+    for (let i = 0; i < this.destinations.length; i += 1) {
+      this.destinations[i].init();
     }
 
     const sourceKeys = Object.keys(config.sources);
@@ -40,7 +47,7 @@ export default class Main {
     }
 
     for (let i = 0; i < this.sources.length; i += 1) {
-      this.sources[i].run();
+      this.sources[i].init();
     }
   }
 

@@ -56,11 +56,14 @@
     "gulp-s3-upload": "^1.6.4",
     "gulp-watch": "^4.3.11",
     "material-ui": "^0.18.3",
+    "mssql": "^4.0.4",
     "mv": "^2.1.1",
+    "node-schedule": "^1.2.3",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-hot-loader": "^3.0.0-beta.6",
-    "react-tap-event-plugin": "^2.0.1"
+    "react-tap-event-plugin": "^2.0.1",
+    "s3": "^4.4.0"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",
