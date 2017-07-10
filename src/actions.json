@@ -6,7 +6,7 @@
         "Bucket": "my-bucket",
         "folder": "my-folder",
         "accessKeyId": "my-username",
-        "secretKey": "JKHVGCJC"
+        "secretAccessKey": "JKHVGCJC"
       }
     }
   },
