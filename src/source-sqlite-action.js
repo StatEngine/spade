@@ -1,4 +1,5 @@
 import sqlite3Lib from 'sqlite3';
+import sql from 'sql';
 // import mssql from 'mssql';
 // import sqlite from 'sqlite';
 import { SourceAction } from './actions';
@@ -12,6 +13,12 @@ export default class SourceSqliteAction extends SourceAction {
   }
 
   init() {
+    // used to generate sql strings as opposed to directly typing strings
+    // to more safely handle descrepancies between sqlite, mssql, mysql, and pg.
+    // note that even for basic selects statements, some dialacts use quotes,
+    // some bracket, others slanted single quotes etc.
+    // sql.setDialect('sqlite');
+
     // TODO: create connection object and connect to db testing creds & params
     // for now, create an sqlight db, populated with a few row
     this.db = new sqlite3.Database(':memory:');
