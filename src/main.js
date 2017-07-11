@@ -73,7 +73,7 @@ export default class Main {
     const createdDestinationKeys = Object.keys(this.destinations);
     for (let i = 0; i < createdDestinationKeys.length; i += 1) {
       const key = createdDestinationKeys[i];
-      const destination = this.sources[key];
+      const destination = this.destinations[key];
       destination.finalize();
     }
   }

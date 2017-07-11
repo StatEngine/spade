@@ -34,6 +34,7 @@ export default class SourceSqliteAction extends SourceAction {
     this.db.serialize(() => {
       const promises = [];
       this.db.each('SELECT * FROM incidents', (err, row) => {
+        // TODO: makes calls to multiple tables, perform merge, then have an array of incidents
         promises.push(this.destination.run(row));
         console.log(row);
       });
