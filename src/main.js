@@ -8,6 +8,7 @@ export default class Main {
     this.destinations = null;
   }
 
+  // load config, create all actions
   init() {
     // the config file shold be loaded dynamically when init is called as it might
     // have changed by the UI; hence, not using import top of the file and
@@ -31,10 +32,11 @@ export default class Main {
 
     // call init on the destinations. Consider calling from source.init if
     // init was not run already
-    let createdKeys = Object.keys(this.destinations);
-    for (let i = 0; i < createdKeys.length; i += 1) {
-      const key = createdKeys[i];
-      this.destinations[key].init();
+    const createdDestinationKeys = Object.keys(this.destinations);
+    for (let i = 0; i < createdDestinationKeys.length; i += 1) {
+      const key = createdDestinationKeys[i];
+      const destination = this.destinations[key];
+      destination.init();
     }
 
     const sourceKeys = Object.keys(config.sources);
@@ -49,10 +51,30 @@ export default class Main {
       }
     }
 
-    createdKeys = Object.keys(this.sources);
-    for (let i = 0; i < createdKeys.length; i += 1) {
-      const key = createdKeys[i];
-      this.sources[key].init();
+    const createdSourcesKeys = Object.keys(this.sources);
+    for (let i = 0; i < createdSourcesKeys.length; i += 1) {
+      const key = createdSourcesKeys[i];
+      const source = this.sources[key];
+      source.init();
+    }
+  }
+
+  // stop all tasks
+  finalize() {
+    const createdSourcesKeys = Object.keys(this.sources);
+    for (let i = 0; i < createdSourcesKeys.length; i += 1) {
+      const key = createdSourcesKeys[i];
+      const source = this.sources[key];
+      // explicitly stop the schedule incase subclass doesn't
+      source.stopSchedule();
+      source.finalize();
+    }
+
+    const createdDestinationKeys = Object.keys(this.destinations);
+    for (let i = 0; i < createdDestinationKeys.length; i += 1) {
+      const key = createdDestinationKeys[i];
+      const destination = this.sources[key];
+      destination.finalize();
     }
   }
 

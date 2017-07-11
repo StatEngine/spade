@@ -91,6 +91,8 @@ export class SourceAction {
     console.log('SourceAction.init: ', this.conf);
   }
 
+  // run is only called if it is not running already. If a previous run job is
+  // taking a while, the one that was going to fire off is skipped.
   run() {
     console.log('SourceAction.run: ', this.conf);
     return true;
@@ -98,6 +100,7 @@ export class SourceAction {
 
   finalize() {
     console.log('SourceAction.finalize: ', this.conf);
+    this.stopSchedule();
   }
 }
 
