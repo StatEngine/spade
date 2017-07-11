@@ -24,7 +24,31 @@
           "server": "localhost",
           "database": "data",
           "options": {
-              "encrypt": true
+            "encrypt": true
+          }
+        }
+      }
+    },
+    "otherFiles": {
+      "enabled": true,
+      "destination": "incidents",
+      "fileWatch": {
+        "folder": "C:/Users/Admin/Documents/spade_react/other-folder",
+        "processed": {
+          "move": {
+            "folder": "./processed"
+          }
+        }
+      }
+    },
+    "cadFiles": {
+      "enabled": true,
+      "destination": "incidents",
+      "fileWatch": {
+        "folder": "C:/Users/Admin/Documents/spade_react/cad-folder",
+        "processed": {
+          "move": {
+            "folder": "./processed"
           }
         }
       }

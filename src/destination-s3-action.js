@@ -1,11 +1,18 @@
 import S3 from 'aws-sdk/clients/s3';
 import { DestinationAction } from './actions';
+import fs from 'fs';
+import path from 'path';
+
 
 export default class DestinationS3Action extends DestinationAction {
   constructor(conf) {
     super(conf);
     this.client = null;
     console.log('S3Destination.constructor: ', this.conf);
+  }
+
+  uploadToS3(params, callback) {
+    return this.client.upload(params, callback);
   }
 
   init() {
@@ -19,7 +26,6 @@ export default class DestinationS3Action extends DestinationAction {
       accessKeyId: this.conf.s3.accessKeyId,
       secretAccessKey: this.conf.s3.secretAccessKey,
     });
-
     // TODO: test bucket for write access?
     const testParams = {
       Body: JSON.stringify({ Test: 'Blah' }),
@@ -37,19 +43,29 @@ export default class DestinationS3Action extends DestinationAction {
     });
   }
 
-  run(data) {
-    let type = 'filename';
-    if (typeof data !== 'string') {
-      type = 'object';
-    }
+  run(name, payload) {
     return new Promise((resolve, reject) => {
-      if (type === 'object') {
-        reject();
-      } else {
-        console.log('S3Destination.run sending file to S3: ', type,
-        this.conf);
-        resolve();
+      let writePayload = payload;
+      let keyName = name;
+      if (writePayload == null) {
+        // Assuming file on filesystem
+        writePayload = fs.readFileSync(name);
+        keyName = path.basename(keyName);
       }
+      const s3Params = {
+        Body: writePayload,
+        Key: keyName,
+        Bucket: this.conf.s3.Bucket,
+      };
+      this.uploadToS3(s3Params, (s3Err, s3Data) => {
+        if (s3Err) {
+          console.log('Could not upload file to s3: ', s3Params.Key, s3Err.stack);
+          reject();
+        } else {
+          console.log('File Uploaded to s3: ', s3Data);
+          resolve();
+        }
+      });
     });
   }
 

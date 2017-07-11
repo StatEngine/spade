@@ -22,13 +22,13 @@ export class DestinationAction {
    * a db pull source, the next pull should from from last successfull send
    * until "now"
    */
-  run(data) {
+  run(name, payload) {
     let type = 'filename';
     if (typeof data !== 'string') {
       type = 'object';
     }
 
-    console.log('DestinationAction.run: ', this.conf, type, data);
+    console.log('DestinationAction.run: ', this.conf, type, payload);
     return true;
   }
 
