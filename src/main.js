@@ -1,5 +1,6 @@
 import DestinationS3Action from './destination-s3-action';
 import SourceFileWatchAction from './source-file-watch-action';
+import SourceSqliteAction from './source-sqlite-action';
 
 export default class Main {
   constructor() {
@@ -69,6 +70,8 @@ export default class Main {
     if (destinationAction) {
       if (conf.fileWatch) {
         sourceAction = new SourceFileWatchAction(conf, destinationAction);
+      } else if (conf.sqlite) {
+        sourceAction = new SourceSqliteAction(conf, destinationAction);
       } else {
         console.log('====[ Source action Type not supported: ', conf);
       }

@@ -20,4 +20,5 @@ electron-forge make --arch x64 --platform darwin
 
 ## get the linter working in atom
 apm install linter-eslint
-Í
+
+Task's can be scheduled using cron syntax. see this https://crontab.guru

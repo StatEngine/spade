@@ -11,35 +11,13 @@
     }
   },
   "sources": {
-    "cadFiles": {
-      "destination": "incidents",
-      "fileWatch": {
-        "folder": "/Users/syrusm/dev/stat-engine/spade-react/cad-folder",
-        "processed": {
-          "move": {
-            "folder": "./processed"
-          }
-        }
-      }
-    },
-    "otherFiles": {
-      "destination": "incidents",
-      "fileWatch": {
-        "folder": "/Users/syrusm/dev/stat-engine/spade-react/other-folder",
-        "processed": {
-          "move": {
-            "folder": "./processed"
-          }
-        }
-      }
-    },
     "cadDb": {
       "enabled": true,
       "destination": "incidents",
       "trigger": {
-        "schedule": "*/5 * * * *"
+        "schedule": "*/1 * * * *"
       },
-      "tritech": {
+      "sqlite": {
         "mssql": {
           "user": "username",
           "password": "my-password",

@@ -54,10 +54,9 @@ export class SourceAction {
     // job object s implemented as a "private" so that implementation changes
     // doesn't affect child actions.
     let privateJob = null;
-
     this.startSchedule = function () { // eslint-disable-line func-names
-      if (this.config.trigger && this.config.trigger.schedule) {
-        privateJob = schedule.scheduleJob(this.config.trigger.schedule, () => {
+      if (this.conf.trigger && this.conf.trigger.schedule) {
+        privateJob = schedule.scheduleJob(this.conf.trigger.schedule, () => {
           if (!this.getRunning()) {
             this.setRunning(true);
             try {
