@@ -1,16 +1,18 @@
-import {Ping, metrics} from './metrics';
+import { ipcRenderer } from 'electron';
 import Settings from 'electron-settings';
 import EventEmitter from 'events';
-const {ipcRenderer} = require('electron');
-import {version} from '../package.json';
 
-class Spade {
+import { Ping, metrics } from './metrics';
+import { version } from '../package.json';
+
+export class Spade {
   constructor() {
     this.settings = Settings;
     this.events = new EventEmitter();
 
     this.ready = true;
     this.events.emit('ready');
+
   }
 
   ready() {
@@ -21,7 +23,7 @@ class Spade {
     return this.events.on('ready', callback);
   }
 
-  onQuit(callback) {
+  static onQuit(callback) {
     return ipcRenderer.on('before-quit', callback);
   }
 
@@ -43,13 +45,15 @@ class Spade {
     this.heartbeat.stop();
   }
 
-  getVersion() {
+  static getVersion() {
     return version;
   }
 }
 
-export let spade = new Spade();
+const spade = new Spade();
+export default spade;
 
+// TODO: move to instance
 function finishSetup() {
   spade.startMetrics();
   spade.startHeartbeat();
