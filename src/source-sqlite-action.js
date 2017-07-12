@@ -1,5 +1,5 @@
 import sqlite3Lib from 'sqlite3';
-import sql from 'sql';
+// import sql from 'sql';
 // import mssql from 'mssql';
 // import sqlite from 'sqlite';
 import { SourceAction } from './actions';

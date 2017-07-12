@@ -1,7 +1,8 @@
-import S3 from 'aws-sdk/clients/s3';
-import { DestinationAction } from './actions';
 import fs from 'fs';
 import path from 'path';
+
+import S3 from 'aws-sdk/clients/s3';
+import { DestinationAction } from './actions';
 
 
 export default class DestinationS3Action extends DestinationAction {
@@ -26,6 +27,7 @@ export default class DestinationS3Action extends DestinationAction {
       accessKeyId: this.conf.s3.accessKeyId,
       secretAccessKey: this.conf.s3.secretAccessKey,
     });
+    /*
     // TODO: test bucket for write access?
     const testParams = {
       Body: JSON.stringify({ Test: 'Blah' }),
@@ -41,6 +43,7 @@ export default class DestinationS3Action extends DestinationAction {
         console.log('Test file uploaded', data);
       }
     });
+    */
   }
 
   run(name, payload) {

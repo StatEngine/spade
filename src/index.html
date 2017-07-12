@@ -11,14 +11,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import Main from './main';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-import actions from './actions';
+import spade from './spade';
 
 injectTapEventPlugin();
 
-let main = new Main();
-main.init();
+spade.init();
 
 const render = () => {
   const App = require('./app').default;

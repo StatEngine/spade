@@ -1,8 +1,14 @@
 {
-  "department-id": "12345",
-  "time-zone": {
+  "departmentId": "12345",
+  "timeZone": {
     "auto": true
   },
+  "reporter": {
+    "userConsent": true,
+    "trigger": {
+      "schedule": "*/1 * * * *"
+    }
+  },  
   "destinations": {
     "incidents": {
       "s3": {

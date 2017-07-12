@@ -5,31 +5,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import Settings from 'electron-settings';
-<<<<<<< HEAD
-import path from 'path';
-import fs from 'fs';
-import mvElseCp from 'mv';
-import watch from 'gulp-watch';
 
-=======
->>>>>>> 1st pass at app with multiple source file watch actions
-
-const dialog = require('electron').remote.dialog
-
-const config = {
-  accessKeyId: 'YOURACCESSKEY',
-  secretAccessKey: 'YOUACCESSSECRET',
-};
-
-const s3 = require('gulp-s3-upload')(config);
-
-let self = null;
+// let self = null;
 
 export default class App extends React.Component {
 
   constructor(props) {
     super(props);
-    self = this;
+    // self = this;
     this.saveSettings = this.saveSettings.bind(this);
     this.toggleCheckbox = this.toggleCheckbox.bind(this);
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
@@ -39,14 +22,15 @@ export default class App extends React.Component {
       password: '',
       sourceFolder: '',
       destinationFolder: '',
-      consented: true
+      consented: true,
     };
 
     if (this.state.sourceFolder !== '') {
-      //this.performWatch(this.state.sourceFolder);
+      // this.performWatch(this.state.sourceFolder);
     }
   }
 
+  /*
   chooseSource() {
     dialog.showOpenDialog({
       title: 'Choose Source Directory',
@@ -59,7 +43,6 @@ export default class App extends React.Component {
     });
   }
 
-/*
   onStreamError(e) {
     console.log(e);
   }
@@ -71,7 +54,7 @@ export default class App extends React.Component {
   }
 
   toggleCheckbox(e) {
-    var state = {};
+    const state = {};
     state[e.target.id] = e.target.checked;
     this.setState(state);
   }
@@ -129,7 +112,7 @@ export default class App extends React.Component {
               <Checkbox
                 id="consented"
                 label="Send diagnosis statistics."
-                style={{marginBottom: 16}}
+                style={{ marginBottom: 16 }}
                 onCheck={this.toggleCheckbox}
                 checked={this.state.consented}
               />

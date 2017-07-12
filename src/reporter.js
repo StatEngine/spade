@@ -1,22 +1,7 @@
 import querystring from 'querystring';
-import { spade } from '../spade.js';
+import spade from './spade';
 
 export default class Reporter {
-
-  static post(url) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
-    xhr.send(null);
-  }
-
-  request(url) {
-    return this.post(url);
-  }
-
-  static consented() {
-    return spade.settings.get('state.consented') === true;
-  }
-
   static getReleaseChannel() {
     const version = spade.getVersion();
     if (version.indexOf('beta') > -1) {
@@ -32,7 +17,8 @@ export default class Reporter {
     process.env.PROCESSOR_ARCHITEW6432 === 'AMD64') ? 'x64' : process.arch;
   }
 
-  send(params) {
+  static send(params) {
+    console.log('----[ send: ', params);
     if (typeof (navigator) === 'undefined' || !navigator.onLine) {
       return;
     }
@@ -40,19 +26,21 @@ export default class Reporter {
       v: 1,
       aip: 1,
       tid: 'UA-101004422-2',
-      cid: spade.settings.get('state').deparmentId,
+      cid: spade.getDepartmentId(),
       an: 'spade',
       av: spade.getVersion(),
     });
 
-    if (this.consented()) {
-      Object.assign(params, this.consentedParams());
+    if (spade.getHasUserConsent()) {
+      Object.assign(params, Reporter.consentedParams());
     }
 
-    this.request(`https://ssl.google-analytics.com/collect?${querystring.stringify(params)}`);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://ssl.google-analytics.com/collect?${querystring.stringify(params)}`);
+    xhr.send(null);
   }
 
-  sendEvent(category, action, label, value) {
+  static sendEvent(category, action, label, value) {
     const params = {
       t: 'event',
       ec: category,
@@ -62,37 +50,37 @@ export default class Reporter {
     if (label) { params.el = label; }
     if (value) { params.ev = value; }
 
-    return this.send(params);
+    return Reporter.send(params);
   }
 
-  sendTiming(category, name, value) {
+  static sendTiming(category, name, value) {
     const params = {
       t: 'timing',
       utc: category,
       utv: name,
       utt: value,
     };
-    this.send(params);
+    Reporter.send(params);
   }
 
-  sendException(description) {
+  static sendException(description) {
     const params = {
       t: 'exception',
       exd: description,
     };
-    return this.send(params);
+    return Reporter.send(params);
   }
 
-  consentedParams() {
+  static consentedParams() {
     const memUse = process.memoryUsage();
     return {
-      cd2: this.getOsArch(),
+      cd2: Reporter.getOsArch(),
       cd3: process.arch,
       cm1: memUse.heapUsed >> 20, // eslint-disable-line no-bitwise, bytes to mb
       cm2: Math.round((memUse.heapUsed / memUse.heapTotal) * 100),
       sr: `${screen.width}x${screen.height}`,
       vp: `${innerWidth}x${innerHeight}`,
-      aiid: this.getReleaseChannel(),
+      aiid: Reporter.getReleaseChannel(),
     };
   }
 }

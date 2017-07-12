@@ -1,5 +1,11 @@
 {
-  "department-id": "12345",
+  "departmentId": "12345",
+  "reporter": {
+    "userConsent": true,
+    "trigger": {
+      "schedule": "*/1 * * * *"
+    }
+  },
   "destinations": {
     "incidents": {
       "s3": {

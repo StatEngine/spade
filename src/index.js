@@ -2,11 +2,14 @@ import { app, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 import electronSquirrelStartup from 'electron-squirrel-startup';
+import reporter from './reporter';
 
 // handle windows squirrel events. Needs to be top of the app
 if (electronSquirrelStartup) {
   app.quit();
 }
+
+const sessionLoadTime = Date.now();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -34,6 +37,7 @@ const createWindow = async () => {
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
+    reporter.sendTiming('spade', 'sessionDuration', Date.now() - sessionLoadTime);
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -44,7 +48,9 @@ const createWindow = async () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
