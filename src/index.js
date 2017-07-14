@@ -3,6 +3,7 @@ import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-insta
 import { enableLiveReload } from 'electron-compile';
 import electronSquirrelStartup from 'electron-squirrel-startup';
 import reporter from './reporter';
+import tray from './tray';
 
 // handle windows squirrel events. Needs to be top of the app
 if (electronSquirrelStartup) {
@@ -49,7 +50,11 @@ const createWindow = async () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  createWindow();
+  // TODO: should init spade here, but doing it in html for easier debugging
+  // through the browser debugger instead of output to shell
+  createWindow().then(() => {
+    tray.init(mainWindow);
+  });
 });
 
 // Quit when all windows are closed.
@@ -57,7 +62,8 @@ app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit();
+    // app.quit();
+    console.log('----[ all windows have been closed, not quitting. Can only quit app from tray icon');
   }
 });
 
