@@ -27,8 +27,7 @@ export class Spade {
     // diabling linter error.
     try {
       // Read in the configuration json file. This may be from s3 or http endpoint
-      this.config = fs.readFileSync(configFilename);
-      this.config = require('./actions.json');  // eslint-disable-line global-require
+      this.config = JSON.parse(fs.readFileSync(configFilename));
     } catch (e) {
       console.error('Unable to load configuration object.', e);
       this.config = null;
@@ -74,7 +73,7 @@ export class Spade {
     }
 
     const directory = this.sources.testFiles.fileWatch.folder;
-    const moveFolder = this.sources.testFiles.fileWatch.move.folder;
+    const moveFolder = this.sources.testFiles.fileWatch.processed.folder;
     const testFilename = 'testJson.json';
     fs.createReadStream(testFilename).pipe(fs.createWriteStream(directory + testFilename));
 
@@ -83,8 +82,11 @@ export class Spade {
 
     if (fileMoved !== false && newLocation !== true) {
       console.error('file watcher did not move file correctly');
+      this.testCleanup();
       return 1;
     }
+
+    // TODO: Figure out how to properly test destination endpoint.
 
     console.log('Test ran successfully. Action creation and file watch move tested.');
     return 0;
@@ -104,10 +106,10 @@ export class Spade {
     this.sources = {};
     this.destinations = {};
 
-    const destinationKeys = Object.keys(config.destinations);
+    const destinationKeys = Object.keys(this.config.destinations);
     for (let i = 0; i < destinationKeys.length; i += 1) {
       const key = destinationKeys[i];
-      const conf = config.destinations[key];
+      const conf = this.config.destinations[key];
       const action = Spade.createDestinationAction(conf);
       if (action) {
         this.destinations[key] = action;
@@ -126,10 +128,10 @@ export class Spade {
       destination.init();
     }
 
-    const sourceKeys = Object.keys(config.sources);
+    const sourceKeys = Object.keys(this.config.sources);
     for (let i = 0; i < sourceKeys.length; i += 1) {
       const key = sourceKeys[i];
-      const conf = config.sources[key];
+      const conf = this.config.sources[key];
       const action = this.createSourceAction(conf);
       if (action) {
         this.sources[key] = action;

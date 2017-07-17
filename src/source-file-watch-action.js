@@ -33,7 +33,8 @@ export default class SourceFileWatchAction extends SourceAction {
   watch(directoryToWatch) {
     console.log('Performing watch on ', directoryToWatch);
     const pattern = `${directoryToWatch}\\*`;
-    const destDir = path.normalize(`${directoryToWatch}${path.sep}processed`);
+    const moveFolder = this.conf.fileWatch.processed.folder;
+    const destDir = path.normalize(directoryToWatch + path.sep + moveFolder);
 
     return watch(
       pattern,

@@ -16,7 +16,7 @@ import spade from './spade';
 
 injectTapEventPlugin();
 
-spade.init();
+spade.init('./src/actions.json');
 
 const render = () => {
   const App = require('./app').default;

@@ -41,9 +41,7 @@
       "fileWatch": {
         "folder": "./testFolder/",
         "processed": {
-          "move": {
             "folder": "./processed/"
-          }
         }
       }
     }
