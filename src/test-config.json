@@ -1,0 +1,51 @@
+{
+  "departmentId": "12345",
+  "reporter": {
+    "userConsent": true,
+    "trigger": {
+      "schedule": "*/1 * * * *"
+    }
+  },
+  "destinations": {
+    "testing": {
+      "s3": {
+        "Bucket": "my-bucket",
+        "folder": "my-folder",
+        "accessKeyId": "my-username",
+        "secretAccessKey": "JKHVGCJC"
+      }
+    }
+  },
+  "sources": {
+    "cadDb": {
+      "enabled": true,
+      "destination": "testing",
+      "trigger": {
+        "schedule": "*/1 * * * *"
+      },
+      "sqlite": {
+        "mssql": {
+          "user": "username",
+          "password": "my-password",
+          "server": "localhost",
+          "database": "data",
+          "options": {
+            "encrypt": true
+          }
+        }
+      }
+    },
+    "testFiles": {
+      "enabled": true,
+      "destination": "testing",
+      "fileWatch": {
+        "folder": "./testFolder/",
+        "processed": {
+          "move": {
+            "folder": "./processed/"
+          }
+        }
+      }
+    }
+  }
+}

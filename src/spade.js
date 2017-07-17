@@ -1,12 +1,13 @@
 import schedule from 'node-schedule';
-
+import fs from 'fs';
+import path from 'path';
 import DestinationS3Action from './destination-s3-action';
 import SourceFileWatchAction from './source-file-watch-action';
 import SourceSqliteAction from './source-sqlite-action';
 import Reporter from './reporter';
 
 
-class Spade {
+export class Spade {
   constructor() {
     this.spadeCreateTime = Date.now();
     this.sources = null;
@@ -19,12 +20,19 @@ class Spade {
     this.version = 'v1'; // TODO: include npm version + commit hash
   }
 
-  loadConfig() {
+  loadConfig(configFilename) {
     this.configLoadTime = Date.now();
     // the config file shold be loaded dynamically when init is called as it might
     // have changed by the UI; hence, not using import top of the file and
     // diabling linter error.
-    this.config = require('./actions.json');  // eslint-disable-line global-require
+    try {
+      // Read in the configuration json file. This may be from s3 or http endpoint
+      this.config = fs.readFileSync(configFilename);
+      this.config = require('./actions.json');  // eslint-disable-line global-require
+    } catch (e) {
+      console.error('Unable to load configuration object.', e);
+      this.config = null;
+    }
     return this.config;
   }
 
@@ -40,9 +48,55 @@ class Spade {
     return `${this.version}:commit hash`;
   }
 
+  testCleanup() {
+    const directory = this.sources.testFiles.fileWatch.folder;
+
+    fs.readdir(directory, (err, files) => {
+      if (err) throw err;
+
+      const numFiles = files.length;
+      for (let i = 0; i < numFiles; i += 1) {
+        const file = files[i];
+        fs.unlink(path.join(directory, file), (error) => {
+          if (error) throw error;
+        });
+      }
+    });
+  }
+
+  test() {
+    const testConfig = './test-config.json';
+    this.init(testConfig);
+
+    if (this.config == null || this.config.departmentId !== '12345') {
+      console.error('Did not load configuration object properly');
+      return 1;
+    }
+
+    const directory = this.sources.testFiles.fileWatch.folder;
+    const moveFolder = this.sources.testFiles.fileWatch.move.folder;
+    const testFilename = 'testJson.json';
+    fs.createReadStream(testFilename).pipe(fs.createWriteStream(directory + testFilename));
+
+    const fileMoved = fs.existsSync(directory + testFilename);
+    const newLocation = fs.existsSync(path.resolve(directory + moveFolder + testFilename));
+
+    if (fileMoved !== false && newLocation !== true) {
+      console.error('file watcher did not move file correctly');
+      return 1;
+    }
+
+    console.log('Test ran successfully. Action creation and file watch move tested.');
+    return 0;
+  }
+
   // load config, create all actions
-  init() {
-    const config = this.loadConfig();
+  init(config) {
+    if (typeof config === 'string') {
+      this.config = this.loadConfig(config);
+    } else {
+      this.config = config;
+    }
 
     this.startReporterHeartbeat();
     Reporter.sendEvent('spade.init', 'begin');
@@ -117,8 +171,13 @@ class Spade {
 
   static createDestinationAction(conf) {
     let action = null;
-    if (conf.s3) {
-      action = new DestinationS3Action(conf);
+    // Wrap creation of Actions in try block and default to null upon exception.
+    try {
+      if (conf.s3) {
+        action = new DestinationS3Action(conf);
+      }
+    } catch (e) {
+      action = null;
     }
     return action;
   }
@@ -127,12 +186,17 @@ class Spade {
     let sourceAction = null;
     const destinationAction = this.destinations[conf.destination];
     if (destinationAction) {
-      if (conf.fileWatch) {
-        sourceAction = new SourceFileWatchAction(conf, destinationAction);
-      } else if (conf.sqlite) {
-        sourceAction = new SourceSqliteAction(conf, destinationAction);
-      } else {
-        console.log('====[ Source action Type not supported: ', conf);
+      // Wrap creation of Actions in try block and default to null upon exception
+      try {
+        if (conf.fileWatch) {
+          sourceAction = new SourceFileWatchAction(conf, destinationAction);
+        } else if (conf.sqlite) {
+          sourceAction = new SourceSqliteAction(conf, destinationAction);
+        } else {
+          console.log('====[ Source action Type not supported: ', conf);
+        }
+      } catch (e) {
+        sourceAction = null;
       }
     } else {
       console.log('====[ Destination action not resolved for source: ',
