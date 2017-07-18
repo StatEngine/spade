@@ -7,6 +7,7 @@
   "repository": "StatEngine/spade",
   "scripts": {
     "start": "electron-forge start",
+    "start-service": "./node_modules/babel-cli/bin/babel-node.js ./src/service.js",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make-win": "electron-forge make --arch ia32 --platform win32",
@@ -48,12 +49,8 @@
   "dependencies": {
     "aws-sdk": "^2.82.0",
     "electron": "^1.6.11",
-    "electron-compile": "^6.4.1",
-    "electron-devtools-installer": "^2.0.1",
     "electron-settings": "^3.1.1",
     "gulp": "^3.9.1",
-    "gulp-clean": "^0.3.2",
-    "gulp-plumber": "^1.1.0",
     "gulp-s3-upload": "^1.6.4",
     "gulp-watch": "^4.3.11",
     "material-ui": "^0.18.3",
@@ -69,10 +66,10 @@
     "sqlite3": "^3.1.8"
   },
   "devDependencies": {
-    "babel-plugin-transform-async-to-generator": "^6.24.1",
-    "babel-plugin-transform-es2015-classes": "^6.24.1",
-    "babel-preset-env": "^1.5.2",
-    "babel-preset-react": "^6.24.1",
+    "babel-cli": "^6.24.1",
+    "babel-preset-electron": "^1.4.15",
+    "electron-compile": "^6.4.1",
+    "electron-devtools-installer": "^2.0.1",
     "electron-forge": "^3.0.5",
     "electron-prebuilt-compile": "1.6.11",
     "electron-squirrel-startup": "^1.0.0",

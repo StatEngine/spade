@@ -96,8 +96,11 @@ export class Spade {
   init(config) {
     if (typeof config === 'string') {
       this.config = this.loadConfig(config);
-    } else {
+    } else if (typeof config === 'object') {
       this.config = config;
+    } else {
+      console.log('----[ Using default config');
+      this.config = this.loadConfig(path.join(__dirname, 'actions.json'));
     }
 
     this.startReporterHeartbeat();
