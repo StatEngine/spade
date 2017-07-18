@@ -6,8 +6,9 @@
   "main": "src/index.js",
   "repository": "StatEngine/spade",
   "scripts": {
-    "start": "electron-forge start",
-    "start-service": "./node_modules/babel-cli/bin/babel-node.js ./src/service.js",
+    "start": "electron-forge start -- --ui",
+    "start-service": "electron-forge start -- --service",
+    "test": "./node_modules/babel-cli/bin/babel-node.js ./src/spade-service.js",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make-win": "electron-forge make --arch ia32 --platform win32",
@@ -64,7 +65,8 @@
     "react-tap-event-plugin": "^2.0.1",
     "s3": "^4.4.0",
     "sql": "^0.76.1",
-    "sqlite3": "^3.1.8"
+    "sqlite3": "^3.1.8",
+    "yargs": "^8.0.2"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
