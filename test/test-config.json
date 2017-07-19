@@ -7,7 +7,7 @@
     }
   },
   "destinations": {
-    "testing": {
+    "incidents": {
       "s3": {
         "Bucket": "my-bucket",
         "folder": "my-folder",
@@ -19,7 +19,7 @@
   "sources": {
     "cadDb": {
       "enabled": true,
-      "destination": "testing",
+      "destination": "incidents",
       "trigger": {
         "schedule": "*/1 * * * *"
       },
@@ -37,7 +37,7 @@
     },
     "testFiles": {
       "enabled": true,
-      "destination": "testing",
+      "destination": "incidents",
       "fileWatch": {
         "folder": "./testFolder/",
         "processed": {

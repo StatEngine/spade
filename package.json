@@ -8,7 +8,7 @@
   "scripts": {
     "start": "electron-forge start -- --ui",
     "start-service": "electron-forge start -- --service",
-    "test": " node ./node_modules/babel-cli/bin/babel-node ./src/spade-service.js",
+    "test": "mocha --compilers js:babel-register ./test/test-spade.js",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make-win": "electron-forge make --arch ia32 --platform win32",
@@ -72,6 +72,8 @@
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-preset-electron": "^1.4.15",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.24.1",
     "chai": "^4.1.0",
     "electron-compile": "^6.4.1",
     "electron-devtools-installer": "^2.0.1",

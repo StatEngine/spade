@@ -1,25 +1,25 @@
-import fs from 'fs';
-import { assert } from 'chai';
-import { Spade } from '../spade';
+const fs = require('fs');
+const assert = require('chai').assert;
+const Spade = require('../src/spade').Spade;
 
 describe('SpadeE2E', () => {
-  const spade = new Spade();
-  const testConfig = '../test-config.json';
-  spade.init(testConfig);
+  const testSpade = new Spade();
+  const testConfig = './test/test-config.json';
+  testSpade.init(testConfig);
 
   it('Should load the configuration object', () => {
     // Load the test configuration object
-    assert.notEqual(spade.config, null);
-    assert.Equal(spade.config.departmentId, '12345');
+    assert.notEqual(testSpade.config, null);
+    assert.equal(testSpade.config.departmentId, '12345');
   });
 
   it('Should create destination actions from configuration', () => {
-    const createdDestinationKeys = Object.keys(this.destinations);
+    const createdDestinationKeys = Object.keys(testSpade.destinations);
     assert.isAbove(createdDestinationKeys.length, 0);
   });
 
   it('Should create source actions from configuration', () => {
-    const createdSourceKeys = Object.keys(this.sources);
+    const createdSourceKeys = Object.keys(testSpade.sources);
     assert.isAbove(createdSourceKeys.length, 0);
   });
 
@@ -33,8 +33,8 @@ describe('SpadeE2E', () => {
     const fileMoved = fs.existsSync('./testFolder/testJson.json');
     const newLocation = fs.existsSync('./testFolder/processed/testJson.json');
 
-    assert.Equal(fileMoved, false);
-    assert.Equal(newLocation, true);
+    assert.equal(fileMoved, false);
+    assert.equal(newLocation, true);
   });
 
   it('Should properly stop and shutdown all actions');
