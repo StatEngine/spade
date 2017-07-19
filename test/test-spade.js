@@ -28,7 +28,7 @@ describe('SpadeE2E', () => {
   });
   it('Should run actions and push results to destinations', () => {
     // Assuming actions were created properly move a  testJson file into watch
-    fs.createReadStream('testJson.json').pipe(fs.createWriteStream('./testFolder/testJson.json'));
+    fs.createReadStream('./test/testJson.json').pipe(fs.createWriteStream('./test/testFolder/testJson.json'));
 
     const fileMoved = fs.existsSync('./testFolder/testJson.json');
     const newLocation = fs.existsSync('./testFolder/processed/testJson.json');
