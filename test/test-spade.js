@@ -1,6 +1,6 @@
-const fs = require('fs');
-const assert = require('chai').assert;
-const Spade = require('../src/spade').Spade;
+import fs from 'fs';
+import { assert } from 'chai';
+import { Spade } from '../src/spade';
 
 describe('SpadeE2E', () => {
   const testSpade = new Spade();
