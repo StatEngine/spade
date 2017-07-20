@@ -34,7 +34,8 @@ export default class SourceFileWatchAction extends SourceAction {
     console.log('Performing watch on ', directoryToWatch);
     const pattern = `${directoryToWatch}\\*`;
     const moveFolder = this.conf.fileWatch.processed.folder;
-    const destDir = path.normalize(directoryToWatch + path.sep + moveFolder);
+    // Join does both a concat and normalize
+    const destDir = path.join(directoryToWatch, path.sep, moveFolder);
 
     return watch(
       pattern,
@@ -47,7 +48,7 @@ export default class SourceFileWatchAction extends SourceAction {
       (event) => {
         const basename = path.basename(event.path);
         const sourceFile = event.path;
-        const destFile = `${destDir}${path.sep}${basename}`;
+        const destFile = path.join(destDir, path.sep, basename);
         console.log('Event: ', event, 'mv source: ', sourceFile,
         'mv dest: ', destFile);
 

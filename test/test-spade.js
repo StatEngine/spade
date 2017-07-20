@@ -2,6 +2,10 @@ import fs from 'fs';
 import { assert } from 'chai';
 import { Spade } from '../src/spade';
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 describe('SpadeE2E', () => {
   const testSpade = new Spade();
   const testConfig = './test/test-config.json';
@@ -29,6 +33,8 @@ describe('SpadeE2E', () => {
   it('Should run actions and push results to destinations', () => {
     // Assuming actions were created properly move a  testJson file into watch
     fs.createReadStream('./test/testJson.json').pipe(fs.createWriteStream('./test/testFolder/testJson.json'));
+
+    sleep(2000).get();
 
     const fileMoved = fs.existsSync('./testFolder/testJson.json');
     const newLocation = fs.existsSync('./testFolder/processed/testJson.json');

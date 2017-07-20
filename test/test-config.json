@@ -39,7 +39,7 @@
       "enabled": true,
       "destination": "incidents",
       "fileWatch": {
-        "folder": "./testFolder/",
+        "folder": "./test/testFolder/",
         "processed": {
             "folder": "./processed/"
         }
