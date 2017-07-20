@@ -12,7 +12,10 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make-win": "electron-forge make --arch ia32 --platform win32",
-    "lint": "./node_modules/eslint/bin/eslint.js --ext=jsx --ext=js ./src"
+    "lint": "./node_modules/eslint/bin/eslint.js --ext=jsx --ext=js ./src",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [],
   "author": "contact@prominentedge.com",
@@ -49,7 +52,6 @@
   },
   "dependencies": {
     "aws-sdk": "^2.82.0",
-    "electron": "^1.6.11",
     "electron-settings": "^3.1.1",
     "gulp": "^3.9.1",
     "gulp-s3-upload": "^1.6.4",
@@ -70,11 +72,13 @@
     "yargs": "^8.0.2"
   },
   "devDependencies": {
+    "electron": "^1.6.11",
     "babel-cli": "^6.24.1",
     "babel-preset-electron": "^1.4.15",
     "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.24.1",
     "chai": "^4.1.0",
+    "electron-builder": "^19.16.0",
     "electron-compile": "^6.4.1",
     "electron-devtools-installer": "^2.0.1",
     "electron-forge": "^3.0.5",
@@ -84,6 +88,45 @@
     "eslint-config-airbnb": "^15.0.1",
     "eslint-plugin-import": "^2.6.0",
     "eslint-plugin-jsx-a11y": "^5.0.3",
-    "eslint-plugin-react": "^7.1.0"
+    "eslint-plugin-react": "^7.1.0",
+    "yarn": "^0.27.5"
+  },
+  "build": {
+    "appId": "spade",
+    "files": [
+      "src/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      "dictionaries/**/*",
+      "build/icon.ico"
+    ],
+    "mac": {
+      "bundleVersion": "1",
+      "category": "public.app-category.publicsafety",
+      "target": [
+        "dmg",
+        "pkg",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "include": "build/win/installer.nsh",
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+      "desktop": {
+        "Categories": "GNOME;GTK;Network;InstantMessaging",
+        "StartupWMClass": "Spade"
+      },
+      "target": [
+        "deb",
+        "rpm"
+      ]
+    }
   }
 }
