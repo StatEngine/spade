@@ -1,6 +1,5 @@
 {
   "presets": [
-    "electron",
-    "es2015"
+    "electron"
   ]
 }
