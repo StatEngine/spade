@@ -8,7 +8,7 @@
   "scripts": {
     "start": "electron-forge start -- --ui",
     "start-service": "electron-forge start -- --service",
-    "test": "mocha --compilers js:babel-register ./test/test-spade.js",
+    "test": "mocha --compilers js:babel-register ./test/*.js",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make-win": "electron-forge make --arch ia32 --platform win32",
