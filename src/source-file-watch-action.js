@@ -7,17 +7,22 @@ import { SourceAction } from './actions';
 
 
 export default class SourceFileWatchAction extends SourceAction {
-  constructor(conf, destination) {
-    super(conf, destination);
+  constructor(config, destination) {
+    super(config, destination);
     this.stream = null;
-    console.log('FileWatch.constructor: ', this.conf);
+    console.log('FileWatch.constructor: ', this.config);
   }
 
   // Note: define init to not start schedule
   init() {
     // Note: no need to call super.init() as this.startSchedule(); since we dont
     // have to poll the source and instead watch triggers based on file events
-    this.stream = this.watch(this.conf.fileWatch.folder);
+    try {
+      this.stream = this.watch(this.config.fileWatch.folder);
+    } catch (e) {
+      this.setError(e);
+      console.log('Unable to create watch stream: ', e);
+    }
   }
 
   finalize() {
@@ -25,18 +30,20 @@ export default class SourceFileWatchAction extends SourceAction {
       this.stream.close();
       this.stream = null;
     }
-    console.log('FileWatch.finalize: ', this.conf);
+    console.log('FileWatch.finalize: ', this.config);
   }
 
   // run() funtion not defined as the file-watch will not use it
 
   watch(directoryToWatch) {
-    console.log('Performing watch on ', directoryToWatch);
-    const pattern = `${directoryToWatch}\\*`;
-    const moveFolder = this.conf.fileWatch.processed.folder;
+    // Convert the potential relative path to a absolute path.
+    const resolvedDirectory = path.resolve(directoryToWatch);
+    console.log('Performing watch on ', resolvedDirectory);
+    const pattern = `${resolvedDirectory}\\*`;
+    const moveFolder = this.config.fileWatch.processed.folder;
     // Join does both a concat and normalize
-    const destDir = path.join(directoryToWatch, path.sep, moveFolder);
-
+    const destDir = path.join(resolvedDirectory, path.sep, moveFolder);
+    console.log('Moving files to: ', destDir);
     return watch(
       pattern,
       {
@@ -57,6 +64,7 @@ export default class SourceFileWatchAction extends SourceAction {
           // it first created all the necessary directories, and then
           // tried fs.rename, then falls back to using ncp to copy the dir
           // to dest and then rimraf to remove the source dir
+          console.log('Hit Run Callback');
           mvElseCp(
             sourceFile,
             destFile,
@@ -76,6 +84,9 @@ export default class SourceFileWatchAction extends SourceAction {
               }
             },
           );
+        })
+        .catch((err) => {
+          console.log('Destination run failed:', err);
         });
       },
     );

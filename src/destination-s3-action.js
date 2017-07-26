@@ -1,15 +1,21 @@
 import fs from 'fs';
 import path from 'path';
-
 import S3 from 'aws-sdk/clients/s3';
 import { DestinationAction } from './actions';
 
 
+class S3Error extends Error {
+  constructor(...args) {
+    super(...args);
+    Error.captureStackTrace(this, S3Error);
+  }
+}
+
 export default class DestinationS3Action extends DestinationAction {
-  constructor(conf) {
-    super(conf);
+  constructor(config) {
+    super(config);
     this.client = null;
-    console.log('S3Destination.constructor: ', this.conf);
+    console.log('S3Destination.constructor: ', this.config);
   }
 
   uploadToS3(params, callback) {
@@ -24,26 +30,21 @@ export default class DestinationS3Action extends DestinationAction {
       },
       multipartUploadThreshold: 20971520, // this is the default (20 MB)
       multipartUploadSize: 15728640, // this is the default (15 MB)
-      accessKeyId: this.conf.s3.accessKeyId,
-      secretAccessKey: this.conf.s3.secretAccessKey,
+      accessKeyId: this.config.s3.accessKeyId,
+      secretAccessKey: this.config.s3.secretAccessKey,
     });
-    /*
-    // TODO: test bucket for write access?
     const testParams = {
-      Body: JSON.stringify({ Test: 'Blah' }),
-      Bucket: this.conf.s3.Bucket,
-      Key: 'testFile.json',
+      Bucket: this.config.s3.Bucket,
     };
-    this.client.upload(testParams, (err, data) => {
+    this.client.headBucket(testParams, (err, data) => {
       if (err) {
-        this.status = 'ERROR';
-        console.log('unable to upload', err.stack);
+        this.setError(new S3Error(err));
+        console.log(err);
       } else {
-        this.status = 'READY';
-        console.log('Test file uploaded', data);
+        this.setStatus('READY');
+        console.log('S3 Bucket Valid and accessible', data);
       }
     });
-    */
   }
 
   run(name, payload) {
@@ -52,27 +53,35 @@ export default class DestinationS3Action extends DestinationAction {
       let keyName = name;
       if (writePayload == null) {
         // Assuming file on filesystem
-        writePayload = fs.readFileSync(name);
+        try {
+          writePayload = fs.readFileSync(name);
+        } catch (e) {
+          writePayload = null;
+          console.log('Unable to read file', e);
+          reject(e);
+        }
         keyName = path.basename(keyName);
       }
       const s3Params = {
         Body: writePayload,
         Key: keyName,
-        Bucket: this.conf.s3.Bucket,
+        Bucket: this.config.s3.Bucket,
       };
       this.uploadToS3(s3Params, (s3Err, s3Data) => {
         if (s3Err) {
+          this.setError(s3Err);
           console.log('Could not upload file to s3: ', s3Params.Key, s3Err.stack);
-          reject();
+          reject(s3Err);
         } else {
           console.log('File Uploaded to s3: ', s3Data);
-          resolve();
+          resolve(s3Data);
         }
       });
     });
   }
 
   finalize() {
-    console.log('S3Destination.finalize: ', this.conf);
+    console.log('S3Destination.finalize: ', this.config);
+    this.setStatus('SHUTDOWN');
   }
 }

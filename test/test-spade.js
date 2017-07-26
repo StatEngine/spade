@@ -1,15 +1,21 @@
 import fs from 'fs';
-import { assert } from 'chai';
+import sinon from 'sinon';
+import chai from 'chai';
 import { Spade } from '../src/spade';
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+const assert = chai.assert;
 
 describe('SpadeE2E', () => {
-  const testSpade = new Spade();
-  const testConfig = './test/test-config.json';
-  testSpade.init(testConfig);
+  let destAction = null;
+  let stub = null;
+  let testSpade = null;
+  before((done) => {
+    testSpade = new Spade();
+    testSpade.init('./test/test-config.json');
+    destAction = testSpade.destinations.incidents;
+    stub = sinon.stub(destAction, 'run').resolves(true);
+    done();
+  })
 
   it('Should load the configuration object', () => {
     // Load the test configuration object
@@ -30,18 +36,26 @@ describe('SpadeE2E', () => {
   it('Should report metrics using telemetry', () => {
     // Come back to this test once you understand telemetry more.
   });
-  it('Should run actions and push results to destinations', () => {
+
+  it('Should run actions and push results to destinations', (done) => {
     // Assuming actions were created properly move a  testJson file into watch
-    fs.createReadStream('./test/testJson.json').pipe(fs.createWriteStream('./test/testFolder/testJson.json'));
+    const fileBuffer = fs.readFileSync('./test/testjson.json');
 
-    sleep(2000).get();
+    try {
+      fs.writeFileSync('./test/testFolder/testJson.json', fileBuffer);
+    } catch (e) {
+      console.log('Unable to write File');
+    }
 
-    const fileMoved = fs.existsSync('./testFolder/testJson.json');
-    const newLocation = fs.existsSync('./testFolder/processed/testJson.json');
-
-    assert.equal(fileMoved, false);
-    assert.equal(newLocation, true);
+    setTimeout(() => {
+      assert.equal(fs.existsSync('./test/testFolder/testJson.json'), false);
+      assert.equal(fs.existsSync('./test/testFolder/processed/testJson.json'), true);
+      done();
+    }, 1000);
   });
 
-  it('Should properly stop and shutdown all actions');
+  after((done) => {
+    stub.restore();
+    done();
+  });
 });

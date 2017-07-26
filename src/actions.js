@@ -1,9 +1,44 @@
 import schedule from 'node-schedule';
 
 export class DestinationAction {
-  constructor(conf) {
-    this.conf = conf;
-    console.log('DestinationAction.constructor: ', this.conf);
+  constructor(config) {
+    this.config = config;
+    this.status = 'CREATED';
+    this.error = null;
+    console.log('DestinationAction.constructor: ', this.config);
+  }
+
+  setStatus(status) {
+    this.status = status;
+  }
+
+  printStatus() {
+    if (this.status !== 'ERROR') {
+      console.log(this.status);
+    } else {
+      this.printError();
+    }
+  }
+
+  printError() {
+    // TODO: I think we should pass Error class objects and print them through
+    // the class rather than at location of error. We can properly capture lineNos
+    // and other information as well as have custom print for different error types
+    console.log('ERROR: ', this.error);
+  }
+
+  setError(error) {
+    this.error = error;
+    this.setStatus('ERROR');
+    // TODO: Could possibly send some notification to ui element
+    // or use the reporter to send the error to google-analytics
+  }
+
+  clearError() {
+    this.error = null;
+    if (this.status === 'ERROR') {
+      this.status = 'READY';
+    }
   }
 
   /**
@@ -11,7 +46,6 @@ export class DestinationAction {
    * here instead of the constructor.
    */
   init() {
-    console.log('DestinationAction.init: ', this.conf);
   }
 
   /**
@@ -23,24 +57,21 @@ export class DestinationAction {
    * until "now"
    */
   run(name, payload) {
-    let type = 'filename';
-    if (typeof data !== 'string') {
-      type = 'object';
-    }
-
-    console.log('DestinationAction.run: ', this.conf, type, payload);
+    console.log('Destination run: ', name, payload);
     return true;
   }
 
   finalize() {
-    console.log('DestinationAction.finalize: ', this.conf);
+    super.finalize();
   }
 }
 
 export class SourceAction {
-  constructor(conf, destination) {
-    this.conf = conf;
-    this.destination = destination;
+  constructor(config, destinationAction) {
+    this.config = config;
+    this.status = 'CREATED';
+    this.error = null;
+    this.destination = destinationAction;
 
     let privateIsRunning = false;
     this.getRunning = function () { // eslint-disable-line func-names
@@ -55,19 +86,20 @@ export class SourceAction {
     // doesn't affect child actions.
     let privateJob = null;
     this.startSchedule = function () { // eslint-disable-line func-names
-      if (this.conf.trigger && this.conf.trigger.schedule) {
-        privateJob = schedule.scheduleJob(this.conf.trigger.schedule, () => {
+      if (this.config.trigger && this.config.trigger.schedule) {
+        privateJob = schedule.scheduleJob(this.config.trigger.schedule, () => {
           if (!this.getRunning()) {
             this.setRunning(true);
             try {
               this.run();
             } catch (e) {
-              console.log('====[ action run failed. ', this.conf);
+              console.log('====[ action run failed. ', this.config);
+              this.setError(e);
             } finally {
               this.setRunning(false);
             }
           } else {
-            console.log('~~~~[ previous run not completed yet!', this.conf);
+            console.log('~~~~[ previous run not completed yet!', this.config);
           }
         });
       }
@@ -80,7 +112,40 @@ export class SourceAction {
       }
     };
 
-    console.log('SourceAction.constructor: ', this.conf);
+    console.log('SourceAction.constructor: ', this.config);
+  }
+
+  setStatus(status) {
+    this.status = status;
+  }
+
+  printStatus() {
+    if (this.status !== 'ERROR') {
+      console.log(this.status);
+    } else {
+      this.printError();
+    }
+  }
+
+  printError() {
+    // TODO: I think we should pass Error class objects and print them through
+    // the class rather than at location of error. We can properly capture lineNos
+    // and other information as well as have custom print for different error types
+    console.log('ERROR: ', this.error);
+  }
+
+  setError(error) {
+    this.error = error;
+    this.setStatus('ERROR');
+    // TODO: Could possibly send some notification to ui element
+    // or use the reporter to send the error to google-analytics
+  }
+
+  clearError() {
+    this.error = null;
+    if (this.status === 'ERROR') {
+      this.status = 'READY';
+    }
   }
 
   /**
@@ -88,18 +153,18 @@ export class SourceAction {
    * here instead of the constructor.
    */
   init() {
-    console.log('SourceAction.init: ', this.conf);
+    console.log('SourceAction.init: ', this.config);
   }
 
   // run is only called if it is not running already. If a previous run job is
   // taking a while, the one that was going to fire off is skipped.
   run() {
-    console.log('SourceAction.run: ', this.conf);
+    console.log('SourceAction.run: ', this.config);
     return true;
   }
 
   finalize() {
-    console.log('SourceAction.finalize: ', this.conf);
+    console.log('SourceAction.finalize: ', this.config);
     this.stopSchedule();
   }
 }

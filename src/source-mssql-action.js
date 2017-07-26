@@ -2,9 +2,9 @@ import SourceAction from './actions';
 
 
 export default class SourceMssqlAction extends SourceAction {
-  constructor(conf, destination) {
-    super(conf, destination);
-    console.log('SourceMssqlAction.constructor: ', this.conf);
+  constructor(config, destination) {
+    super(config, destination);
+    console.log('SourceMssqlAction.constructor: ', this.config);
   }
 
   init() {
@@ -40,10 +40,12 @@ export default class SourceMssqlAction extends SourceAction {
     Promise.all(promises).then((values) => {
       // TODO: if all the returned values are a success, consider this a success
       console.log('----[ SourceMssqlAction all records sent: ', values);
+    }, (e) => {
+      console.log('Unable to send one or more DB records', e);
     });
   }
 
   finalize() {
-    console.log('SourceMssqlAction.finalize: ', this.conf);
+    console.log('SourceMssqlAction.finalize: ', this.config);
   }
 }

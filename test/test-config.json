@@ -11,30 +11,12 @@
       "s3": {
         "Bucket": "my-bucket",
         "folder": "my-folder",
-        "accessKeyId": "my-username",
-        "secretAccessKey": "JKHVGCJC"
+        "accessKeyId": "AccessID",
+        "secretAccessKey": "secretAccess"
       }
     }
   },
   "sources": {
-    "cadDb": {
-      "enabled": true,
-      "destination": "incidents",
-      "trigger": {
-        "schedule": "*/1 * * * *"
-      },
-      "sqlite": {
-        "mssql": {
-          "user": "username",
-          "password": "my-password",
-          "server": "localhost",
-          "database": "data",
-          "options": {
-            "encrypt": true
-          }
-        }
-      }
-    },
     "testFiles": {
       "enabled": true,
       "destination": "incidents",
