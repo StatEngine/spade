@@ -2,8 +2,8 @@
 #Getting Started
 
 ## Prerequisite
-Install latest stable nodejs https://nodejs.org/en/download/
-npm install -g electron-forge
+Install nodejs version 7.x
+
 
 ## Install App Dependancies
 npm install
