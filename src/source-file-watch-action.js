@@ -17,12 +17,7 @@ export default class SourceFileWatchAction extends SourceAction {
   init() {
     // Note: no need to call super.init() as this.startSchedule(); since we dont
     // have to poll the source and instead watch triggers based on file events
-    try {
-      this.stream = this.watch(this.config.fileWatch.folder);
-    } catch (e) {
-      this.setError(e);
-      console.log('Unable to create watch stream: ', e);
-    }
+    this.stream = this.watch(this.config.fileWatch.folder);
   }
 
   finalize() {
@@ -86,7 +81,7 @@ export default class SourceFileWatchAction extends SourceAction {
           );
         })
         .catch((err) => {
-          console.log('Destination run failed:', err);
+          console.log('=====[ Destination run failed:', err);
         });
       },
     );

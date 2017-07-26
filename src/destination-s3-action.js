@@ -4,12 +4,12 @@ import S3 from 'aws-sdk/clients/s3';
 import { DestinationAction } from './actions';
 
 
-class S3Error extends Error {
+/* class S3Error extends Error {
   constructor(...args) {
     super(...args);
     Error.captureStackTrace(this, S3Error);
   }
-}
+} */
 
 export default class DestinationS3Action extends DestinationAction {
   constructor(config) {
@@ -33,7 +33,7 @@ export default class DestinationS3Action extends DestinationAction {
       accessKeyId: this.config.s3.accessKeyId,
       secretAccessKey: this.config.s3.secretAccessKey,
     });
-    const testParams = {
+    /* const testParams = {
       Bucket: this.config.s3.Bucket,
     };
     this.client.headBucket(testParams, (err, data) => {
@@ -44,7 +44,7 @@ export default class DestinationS3Action extends DestinationAction {
         this.setStatus('READY');
         console.log('S3 Bucket Valid and accessible', data);
       }
-    });
+    });*/
   }
 
   run(name, payload) {
@@ -57,7 +57,7 @@ export default class DestinationS3Action extends DestinationAction {
           writePayload = fs.readFileSync(name);
         } catch (e) {
           writePayload = null;
-          console.log('Unable to read file', e);
+          console.log('====[ Unable to read file', name, e);
           reject(e);
         }
         keyName = path.basename(keyName);

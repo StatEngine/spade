@@ -47,51 +47,6 @@ export class Spade {
     return `${this.version}:commit hash`;
   }
 
-  testCleanup() {
-    const directory = this.sources.testFiles.fileWatch.folder;
-
-    fs.readdir(directory, (err, files) => {
-      if (err) throw err;
-
-      const numFiles = files.length;
-      for (let i = 0; i < numFiles; i += 1) {
-        const file = files[i];
-        fs.unlink(path.join(directory, file), (error) => {
-          if (error) throw error;
-        });
-      }
-    });
-  }
-
-  test() {
-    const testConfig = './test-config.json';
-    this.init(testConfig);
-
-    if (this.config == null || this.config.departmentId !== '12345') {
-      console.error('Did not load configuration object properly');
-      return 1;
-    }
-
-    const directory = this.sources.testFiles.fileWatch.folder;
-    const moveFolder = this.sources.testFiles.fileWatch.processed.folder;
-    const testFilename = 'testJson.json';
-    fs.createReadStream(testFilename).pipe(fs.createWriteStream(directory + testFilename));
-
-    const fileMoved = fs.existsSync(directory + testFilename);
-    const newLocation = fs.existsSync(path.resolve(directory + moveFolder + testFilename));
-
-    if (fileMoved !== false && newLocation !== true) {
-      console.error('file watcher did not move file correctly');
-      this.testCleanup();
-      return 1;
-    }
-
-    // TODO: Figure out how to properly test destination endpoint.
-
-    console.log('Test ran successfully. Action creation and file watch move tested.');
-    return 0;
-  }
-
   // load config, create all actions
   init(config) {
     if (typeof config === 'string') {
@@ -116,9 +71,8 @@ export class Spade {
       const action = Spade.createDestinationAction(conf);
       if (action) {
         this.destinations[key] = action;
-        action.init();
       } else {
-        console.log('====[ Skipping, faile to process destination action: ', key);
+        console.log('====[ Skipping, failed to process destination action: ', key);
       }
     }
 
@@ -127,8 +81,13 @@ export class Spade {
     const createdDestinationKeys = Object.keys(this.destinations);
     for (let i = 0; i < createdDestinationKeys.length; i += 1) {
       const key = createdDestinationKeys[i];
-      const destination = this.destinations[key];
-      destination.init();
+      let destination = this.destinations[key];
+      try {
+        destination.init();
+      } catch (e) {
+        console.log('====[ Unable to init destination Action: ', destination.config, e.stack);
+        destination = null;
+      }
     }
 
     const sourceKeys = Object.keys(this.config.sources);
@@ -139,15 +98,20 @@ export class Spade {
       if (action) {
         this.sources[key] = action;
       } else {
-        console.log('====[ Skipping, faile to process source action: ', key);
+        console.log('====[ Skipping, failed to process source action: ', key);
       }
     }
 
     const createdSourcesKeys = Object.keys(this.sources);
     for (let i = 0; i < createdSourcesKeys.length; i += 1) {
       const key = createdSourcesKeys[i];
-      const source = this.sources[key];
-      source.init();
+      let source = this.sources[key];
+      try {
+        source.init();
+      } catch (e) {
+        console.log('====[ Unable to init source Action: ', source.config, e.stack);
+        source = null;
+      }
     }
   }
 
@@ -159,15 +123,23 @@ export class Spade {
       const key = createdSourcesKeys[i];
       const source = this.sources[key];
       // explicitly stop the schedule incase subclass doesn't
-      source.stopSchedule();
-      source.finalize();
+      try {
+        source.stopSchedule();
+        source.finalize();
+      } catch (e) {
+        console.log('====[ Unable to finalize source Action: ', source.config, e.stack);
+      }
     }
 
     const createdDestinationKeys = Object.keys(this.destinations);
     for (let i = 0; i < createdDestinationKeys.length; i += 1) {
       const key = createdDestinationKeys[i];
       const destination = this.destinations[key];
-      destination.finalize();
+      try {
+        destination.finalize();
+      } catch (e) {
+        console.log('====[ Unable to finalize destination Action: ', destination.config, e.stack);
+      }
     }
 
     Reporter.sendTiming('spade.window', 'sessionDuration', Date.now() - this.sessionStart);
