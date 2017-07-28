@@ -3,7 +3,7 @@
 echo "----[ cleaning yarn cache"
 yarn cache clean
 
-echo "----[ removing npm packages"
+echo "----[ removing ./node_modules npm packages"
 rm -rf ./node_modules
 rc=$?
 if [ $rc != 0 ] ; then
@@ -11,7 +11,24 @@ if [ $rc != 0 ] ; then
     exit $rc
 fi
 
-echo "----[ installing npm packages"
+echo "----[ removing ./app/node_modules/ npm packages"
+rm -rf ./app/node_modules
+rc=$?
+if [ $rc != 0 ] ; then
+    echo "====[ Error: Failed to remove npm packages"
+    exit $rc
+fi
+
+echo "----[ installing ./ npm packages"
+npm install
+rc=$?
+if [ $rc != 0 ] ; then
+    echo "====[ Error: Failed to npm install"
+    exit $rc
+fi
+
+echo "----[ installing ./app npm packages"
+cd app
 npm install
 rc=$?
 if [ $rc != 0 ] ; then
