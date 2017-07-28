@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "----[ cleaning yarn cache"
+yarn cache clean
+
 echo "----[ removing npm packages"
 rm -rf ./node_modules
 rc=$?
