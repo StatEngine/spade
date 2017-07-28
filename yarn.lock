@@ -8285,6 +8285,10 @@ shebang-command@^1.2.0:
   dependencies:
     shebang-regex "^1.0.0"
 
+shebang-loader@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/shebang-loader/-/shebang-loader-0.0.1.tgz#a4000495d44cceefbec63435e7b1698569fa52ec"
+
 shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
@@ -8539,12 +8543,6 @@ sqlite3@^3.1.8:
   dependencies:
     nan "~2.4.0"
     node-pre-gyp "~0.6.31"
-
-sqlite@^2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/sqlite/-/sqlite-2.8.0.tgz#acb6d1869a5241c57016c88606eca009f0f31b90"
-  dependencies:
-    sqlite3 "^3.1.8"
 
 sshpk@^1.7.0:
   version "1.13.1"

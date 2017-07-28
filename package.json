@@ -207,8 +207,7 @@
     "redux": "^3.7.1",
     "redux-thunk": "^2.2.0",
     "source-map-support": "^0.4.15",
-    "sql": "^0.76.1",
-    "sqlite3": "^3.1.8"
+    "sql": "^0.76.1"
   },
   "devEngines": {
     "node": ">=7.x",
