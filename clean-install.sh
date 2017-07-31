@@ -19,21 +19,5 @@ if [ $rc != 0 ] ; then
     exit $rc
 fi
 
-echo "----[ installing ./ npm packages"
 npm install
-rc=$?
-if [ $rc != 0 ] ; then
-    echo "====[ Error: Failed to npm install"
-    exit $rc
-fi
-
-echo "----[ installing ./app npm packages"
-cd app
-npm install
-rc=$?
-if [ $rc != 0 ] ; then
-    echo "====[ Error: Failed to npm install"
-    exit $rc
-fi
-
-echo "----[ clean install complete"
+echo "----[ clean complete"
