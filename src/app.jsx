@@ -18,10 +18,6 @@ export default class App extends React.Component {
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
     this.state = Settings.get('state') || {
       deparmentId: '1234',
-      username: 'syrusm',
-      password: '',
-      sourceFolder: '',
-      destinationFolder: '',
       consented: true,
       tasks: [],
     };
@@ -36,9 +32,9 @@ export default class App extends React.Component {
       s3: 'S3',
     };
 
-    if (this.state.sourceFolder !== '') {
+    // if (this.state.sourceFolder !== '') {
       // this.performWatch(this.state.sourceFolder);
-    }
+    // }
   }
 
   /*
