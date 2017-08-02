@@ -39,7 +39,7 @@
       "enabled": true,
       "destination": "incidents",
       "fileWatch": {
-        "folder": "C:/Users/Admin/Documents/spade_react/other-folder",
+        "folder": "C:/Users/Admin/Documents/spade_new/other-folder",
         "processed": {
             "folder": "./processed"
         }
@@ -49,7 +49,7 @@
       "enabled": true,
       "destination": "incidents",
       "fileWatch": {
-        "folder": "C:/Users/Admin/Documents/spade_react/cad-folder",
+        "folder": "C:\\Users\\Admin\\Documents\\spade_new\\cad-folder",
         "processed": {
             "folder": "./processed"
         }

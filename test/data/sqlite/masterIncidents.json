@@ -1,0 +1,28 @@
+{
+  "features": [
+    {
+      "attributes":
+        {
+          "ID": 1753308,
+          "Master_Incident_Number": "17-0023000",
+          "Response_Date": 1500645167000
+        }
+    },
+    {
+      "attributes":
+        {
+          "ID": 1755507,
+          "Master_Incident_Number": "17-0023761",
+          "Response_Date": 1500645167000
+        }
+    },
+    {
+      "attributes":
+        {
+          "ID": 1752000,
+          "Master_Incident_Number": "17-0023763",
+          "Response_Date": 1500645167000
+        }
+    }
+  ]
+}
