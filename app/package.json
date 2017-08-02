@@ -1,8 +1,8 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "electron-react-boilerplate",
-  "version": "1.0.0",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "name": "spade",
+  "productName": "spade",
+  "version": "0.1.0",
+  "description": "A component of StatEngine which does the dirty work of getting data to the processing pipeline.",
   "main": "./main.prod.js",
   "author": {
     "name": "C. T. Lin",
