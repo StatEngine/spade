@@ -16,7 +16,9 @@
   "dependencies": {
     "sqlite": "^2.8.0",
     "sqlite3": "^3.1.8",
-    "fsevents": "1.1.2",
-    "gulp-watch": "^4.3.11"    
+    "gulp-watch": "^4.3.11"
+  },
+  "optionalDependencies": {
+    "fsevents": "1.1.2"
   }
 }
