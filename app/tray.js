@@ -20,11 +20,11 @@ class TrayControl {
       },
     };
 
-    this.iconTray = path.join(__dirname, 'images',
+    this.iconTray = path.join(__dirname, '..', 'resources', 'images',
       this.icons[process.platform].dir, this.icons[process.platform].icon ||
       'icon-tray.png');
 
-    this.iconTrayAlert = path.join(__dirname, 'images',
+    this.iconTrayAlert = path.join(__dirname, '..', 'resources', 'images',
       this.icons[process.platform].dir, this.icons[process.platform].iconAlert ||
       'icon-tray-alert.png');
 
@@ -100,7 +100,7 @@ class TrayControl {
   }
 
   setImage() {
-    const iconPath = path.join(__dirname, 'images', this.icons[process.platform].dir, 'icon-tray.png');
+    const iconPath = path.join(__dirname, '..', 'resources', 'images', this.icons[process.platform].dir, 'icon-tray.png');
     this.mainWindow.tray.setImage(iconPath);
   }
 
