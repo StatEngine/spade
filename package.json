@@ -41,7 +41,8 @@
       "app.html",
       "main.prod.js",
       "main.prod.js.map",
-      "package.json"
+      "package.json",
+      "images/"
     ],
     "dmg": {
       "contents": [
@@ -112,6 +113,7 @@
     ]
   },
   "devDependencies": {
+    "asar": "^0.13.0",
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
     "babel-jest": "^20.0.3",
