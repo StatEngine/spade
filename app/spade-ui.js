@@ -33,6 +33,7 @@ export default function init() {
     require('module').globalPaths.push(p);
   }
 
+<<<<<<< HEAD
   const installExtensions = async () => {
     const installer = require('electron-devtools-installer');
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -49,6 +50,23 @@ export default function init() {
   const createWindow = async () => {
     if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
       await installExtensions();
+=======
+  mainWindow = new BrowserWindow({
+    show: false,
+    width: 1024,
+    height: 728
+  });
+
+  mainWindow.loadURL(`file://${__dirname}/app.html`);
+
+  spade.init();
+
+  // @TODO: Use 'ready-to-show' event
+  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (!mainWindow) {
+      throw new Error('"mainWindow" is not defined');
+>>>>>>> Initializing Spade in spade-ui
     }
 
     mainWindow = new BrowserWindow({

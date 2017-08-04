@@ -1,12 +1,11 @@
 import React from 'react';
 import TextField from 'material-ui/TextField';
-import Settings from 'electron-settings';
 import { NumberInput } from 'material-ui-number-input';
 import { Card, CardHeader, CardText, DropDownMenu, FlatButton, MenuItem, Toggle } from 'material-ui';
 
 // let self = null;
 
-export default class App extends React.Component {
+export default class Settings extends React.Component {
 
   constructor(props) {
     super(props);
@@ -15,7 +14,7 @@ export default class App extends React.Component {
     this.toggleCheckbox = this.toggleCheckbox.bind(this);
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
 
-    this.state = Settings.get('state') || {
+    this.state = {
       deparmentId: '1234',
       consented: true,
       tasks: [],
@@ -69,8 +68,6 @@ export default class App extends React.Component {
     console.log('----[ Save: ', this.state);
     e.preventDefault();
     console.log('this.data: ', this.state);
-
-    Settings.set('state', this.state);
   }
 
   addTask() {
