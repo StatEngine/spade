@@ -1,0 +1,15 @@
+#!/usr/bin/groovy
+
+node('windows') {
+  def root = pwd()
+
+  stage('Setup') {
+    git url: 'https://github.com/StatEngine/spade', branch: 'master'
+  }
+
+  stage('Archive') {
+    bat """
+      @echo TODO: write bat script to create archive and upload to s3.
+    """
+  }
+}
