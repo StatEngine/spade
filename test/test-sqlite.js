@@ -1,13 +1,11 @@
 /* eslint no-bitwise: ["error", { "allow": ["|"] }] */
 import fs from 'fs';
-import sinon from 'sinon';
 import chai from 'chai';
 import sqlite3Lib from 'sqlite3';
 import sql from 'sql';
 
 import incident from './data/sqlite/masterIncidents.json';
 import { masterIncident } from './data/sqlite/models.js';
-import { Spade } from '../app/spade';
 
 sql.setDialect('sqlite');
 const assert = chai.assert;
@@ -19,14 +17,11 @@ function getColumnByName(table, name) {
 const sqlite3 = sqlite3Lib.verbose();
 
 describe('SQLite Database', () => {
-  let testSpade = null;
-  let destAction = null;
-  let stub = null;
   let lastIncidentNumber = 0;
-  let obj = {
+  const obj = {
     ID: 0,
     Master_Incident_Number: 'blah',
-    Response_Date: 0
+    Response_Date: 0,
   };
   const selectQuery = masterIncident.select().where(masterIncident.ID.gt(lastIncidentNumber)).order(masterIncident.ID.descending);
   const insertQuery = masterIncident.insert(obj);
@@ -42,30 +37,30 @@ describe('SQLite Database', () => {
         db.run(`${tables[i].create().toString()}`);
       }
       Object.values(incident.features).forEach((feature) => {
-        const obj = {};
+        const insertObj = {};
         Object.keys(feature.attributes).forEach((key) => {
           const value = feature.attributes[key];
           const column = getColumnByName(masterIncident, key);
           if (value === null) {
-            obj[key] = value;
+            insertObj[key] = value;
             return;
           }
 
           if (column.dataType === 'datetime') {
-            obj[key] = new Date(value);
+            insertObj[key] = new Date(value);
             return;
           }
 
           // Clark County stores coords as strings.  This is just to get test data loaded.
           if (column.name === 'Latitude' || column.name === 'Longitude') {
-            obj[key] = value.toString().substring(0, 10);
+            insertObj[key] = value.toString().substring(0, 10);
             return;
           }
 
-          obj[key] = value;
+          insertObj[key] = value;
         });
-        console.log('Insert String: ', masterIncident.insert(obj).toString());
-        db.run(masterIncident.insert(obj).toString());
+        console.log('Insert String: ', masterIncident.insert(insertObj).toString());
+        db.run(masterIncident.insert(insertObj).toString());
       });
     });
     done();
