@@ -1,7 +1,7 @@
 import fs from 'fs';
 import sinon from 'sinon';
 import chai from 'chai';
-import { Spade } from '../../app/spade';
+import { Spade } from '../app/spade';
 
 const assert = chai.assert;
 
@@ -11,7 +11,7 @@ describe('SpadeE2E', () => {
   let testSpade = null;
   before((done) => {
     testSpade = new Spade();
-    testSpade.init('./test/test-config.json');
+    testSpade.init('./test/configurations/test-config.json');
     destAction = testSpade.destinations.incidents;
     stub = sinon.stub(destAction, 'run').resolves(true);
     done();

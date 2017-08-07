@@ -74,7 +74,7 @@ export default class DestinationS3Action extends DestinationAction {
           reject(s3Err);
         } else {
           console.log('File Uploaded to s3: ', s3Data);
-          resolve(s3Data);
+          resolve(keyName);
         }
       });
     });

@@ -24,14 +24,20 @@
         "schedule": "*/1 * * * *"
       },
       "sqlite": {
-        "mssql": {
           "user": "username",
           "password": "my-password",
           "server": "localhost",
           "database": "data",
+          "tables": [
+            {
+              "name": "Response_Master_Incident",
+              "sortKey": "Master_Incident_Number"
+            }
+          ],
           "options": {
             "encrypt": true
-          }
+          },
+        "mssql": {
         }
       }
     },

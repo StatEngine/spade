@@ -4,6 +4,7 @@ import chai from 'chai';
 import sqlite3Lib from 'sqlite3';
 import incident from './data/sqlite/masterIncidents.json';
 import { masterIncident } from './data/sqlite/models.js';
+import { Spade } from '../app/spade';
 
 
 const assert = chai.assert;
@@ -16,12 +17,18 @@ const sqlite3 = sqlite3Lib.verbose();
 
 describe('SQLite Database', () => {
   let testSpade = null;
+  let destAction = null;
+  let stub = null;
   const db = new sqlite3.Database('test-db');
+  destAction = testSpade.destinations.incidents;
+  stub = sinon.stub(destAction, 'run').resolves(true);
   const tables = [
     masterIncident,
   ];
 
   before((done) => {
+    testSpade = new Spade();
+    testSpade.init('./test/configurations/test-config.json');
     db.serialize(() => {
       for (let i = 0; i < tables.length; i += 1) {
         db.run(`${tables[i].create().toString()}`);
@@ -74,12 +81,19 @@ describe('SQLite Database', () => {
     done();
   });
 
+  it('Action should grab first 3 rows from db and send to destination', (done) => {
+    const action = testSpade.sources.cadDb;
+    assert.equal(action.lastIncidentNumber, '17-0023763', 'Should be set to highest incident number');
+    done();
+  });
+
 
   after((done) => {
     /* db.close((err) => {
       if (err) {
         console.log('Unable to close test Database');
-      }*/
+      } */
+    stub.restore();
     done();
   });
 })
