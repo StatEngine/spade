@@ -21,7 +21,7 @@
       "enabled": true,
       "destination": "incidents",
       "fileWatch": {
-        "folder": "./test/testFolder/",
+        "folder": "./test/data/testFolder/",
         "processed": {
             "folder": "./processed/"
         }

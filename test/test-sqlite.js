@@ -1,12 +1,15 @@
 /* eslint no-bitwise: ["error", { "allow": ["|"] }] */
+import fs from 'fs';
 import sinon from 'sinon';
 import chai from 'chai';
 import sqlite3Lib from 'sqlite3';
+import sql from 'sql';
+
 import incident from './data/sqlite/masterIncidents.json';
 import { masterIncident } from './data/sqlite/models.js';
 import { Spade } from '../app/spade';
 
-
+sql.setDialect('sqlite');
 const assert = chai.assert;
 
 function getColumnByName(table, name) {
@@ -19,16 +22,21 @@ describe('SQLite Database', () => {
   let testSpade = null;
   let destAction = null;
   let stub = null;
+  let lastIncidentNumber = 0;
+  let obj = {
+    ID: 0,
+    Master_Incident_Number: 'blah',
+    Response_Date: 0
+  };
+  const selectQuery = masterIncident.select().where(masterIncident.ID.gt(lastIncidentNumber)).order(masterIncident.ID.descending);
+  const insertQuery = masterIncident.insert(obj);
+  console.log(insertQuery);
   const db = new sqlite3.Database('test-db');
-  destAction = testSpade.destinations.incidents;
-  stub = sinon.stub(destAction, 'run').resolves(true);
   const tables = [
     masterIncident,
   ];
 
   before((done) => {
-    testSpade = new Spade();
-    testSpade.init('./test/configurations/test-config.json');
     db.serialize(() => {
       for (let i = 0; i < tables.length; i += 1) {
         db.run(`${tables[i].create().toString()}`);
@@ -64,36 +72,56 @@ describe('SQLite Database', () => {
   });
 
   it('Should create the tables, and retrieve 3 rows', (done) => {
-    const selectQuery = masterIncident.select().toString();
     const rows = [];
-    console.log('Select Query: ', selectQuery);
+    console.log('Select Query: ', selectQuery.toQuery().text);
     db.serialize(() => {
-      db.each('SELECT * FROM Response_Master_Incident', [], (err, row) => {
+      db.each(selectQuery.toString(), [], (err, row) => {
         if (err) {
           console.log(err);
         } else {
-          rows.append(row);
+          rows.push(row);
           console.log('Database returned: ', row);
         }
+      }, (err, rowCount) => {
+        assert.equal(rowCount, 3, 'Should retrieve the initial 3 rows added to database.');
+        lastIncidentNumber = rows[0].ID;
+        done();
       });
     });
-    assert.equal(rows.length, 3, 'Should retrieve the initial 3 rows added to database.')
-    done();
   });
 
-  it('Action should grab first 3 rows from db and send to destination', (done) => {
-    const action = testSpade.sources.cadDb;
-    assert.equal(action.lastIncidentNumber, '17-0023763', 'Should be set to highest incident number');
-    done();
-  });
+  it('Should insert another row and then retrieve new row ', (done) => {
+    const rows = [];
+    db.serialize(() => {
+      db.run(insertQuery.toQuery().text, [1755509, '555', 234], (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
 
+      db.each(selectQuery.toQuery().text, [lastIncidentNumber], (err, row) => {
+        if (err) {
+          console.log(err);
+        } else {
+          rows.push(row);
+          console.log('Database returned: ', row);
+        }
+      }, (err, rowCount) => {
+        assert.equal(rowCount, 1, 'Should retrieve the single added row to database.');
+        lastIncidentNumber = rows[0].ID;
+        done();
+      });
+    });
+  });
 
   after((done) => {
-    /* db.close((err) => {
+    db.close((err) => {
       if (err) {
         console.log('Unable to close test Database');
-      } */
-    stub.restore();
-    done();
+      } else {
+        fs.unlinkSync('./test-db');
+        done();
+      }
+    });
   });
-})
+});
