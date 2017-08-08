@@ -43,7 +43,8 @@
       "main.prod.js",
       "main.prod.js.map",
       "actions.json",
-      "images/"
+      "images/",
+      "nssm/"
     ],
     "dmg": {
       "contents": [

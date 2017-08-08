@@ -15,6 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "gulp-watch": "^4.3.11",
+    "runas": "^3.1.1",
     "sqlite": "^2.8.0",
     "sqlite3": "^3.1.8",
     "yargs": "^8.0.2"
