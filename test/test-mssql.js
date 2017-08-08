@@ -31,8 +31,15 @@ describe('MSSql Database', () => {
   const insertQuery = masterIncident.insert(obj);
   console.log(insertQuery);
 
-  const queryDB = (query) => {
-    return dbPool.request().query(query);
+  const queryDB = (query, parameters = null) => {
+    const requestQ = dbPool.request();
+    if (parameters !== null) {
+      for (let iParam = 0; iParam < parameters.length; iParam += 1) {
+        const paramName = iParam + 1;
+        requestQ.input(paramName, parameters[iParam]);
+      }
+    }
+    return requestQ.query(query);
   };
   const dropTables = () => {
     return Promise.map(tables, (table) => {
@@ -41,6 +48,7 @@ describe('MSSql Database', () => {
     });
   };
   const addIncidents = () => {
+    const promises = [];
     Object.values(incident.features).forEach((feature) => {
       const obj = {};
       Object.keys(feature.attributes).forEach((key) => {
@@ -65,35 +73,65 @@ describe('MSSql Database', () => {
         obj[key] = value;
       });
       console.log('Insert String: ', masterIncident.insert(obj).toString());
-      queryDB(masterIncident.insert(obj).toString());
+      promises.push(queryDB(masterIncident.insert(obj).toString()));
     });
+    return Promise.all(promises);
   };
 
   before((done) => {
-    mssql.connect('mssql://statengine:st4t3ng1n3@mmbvrsla1et9aq.cjvlp58981av.us-east-1.rds.amazonaws.com/test')
-    .then((pool) => { dbPool = pool; })
+    mssql.connect(process.env.MSSQL_TEST_DB)
+    .then((pool, err) => {
+      if (pool) {
+        console.log(pool);
+        dbPool = pool;
+      } else {
+        console.log(err);
+      }
+    })
     .then(dropTables)
     .then(() => {
       return Promise.map(tables, (table) => {
         return queryDB(`${table.create().toString()}`);
       });
     })
-    .then(addIncidents);
-    done();
+    .then(addIncidents)
+    .then(() => { done(); });
   });
 
   it('Should create the tables, and retrieve 3 rows', (done) => {
-    const rows = [];
-    console.log('Select Query: ', selectQuery.toQuery().text);
-    done();
+    const selectQ = selectQuery.toQuery();
+    selectQ.values[0] = lastIncidentNumber;
+    queryDB(selectQ.text, selectQ.values).then((result) => {
+      console.log(result);
+      assert.equal(result.recordset.length, 3, 'Should retrieve initial 3 rows');
+      lastIncidentNumber = result.recordset[0].ID;
+      done();
+    });
   });
 
   it('Should insert another row and then retrieve new row ', (done) => {
-    const rows = [];
-    done();
+    const insertQ = insertQuery.toQuery();
+    insertQ.values = [1755509, '18-00098', 2345];
+    console.log(insertQ.text, insertQ.values);
+    queryDB(insertQ.text, insertQ.values).then((result) => {
+      console.log('Insert Result: ', result);
+      const selectQ = selectQuery.toQuery();
+      selectQ.values[0] = lastIncidentNumber;
+      return queryDB(selectQ.text, selectQ.values);
+    }).then((result) => {
+      console.log('Select new Result: ', result);
+      assert.equal(result.recordset.length, 1, 'Should retrieve 1 added row');
+      lastIncidentNumber = result.recordset[0].ID;
+      done();
+    });
   });
 
   after((done) => {
-
+    dropTables().then(() => {
+      if (dbPool) {
+        dbPool.close();
+      }
+      done();
+    });
   });
 });
