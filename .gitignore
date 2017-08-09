@@ -7,6 +7,7 @@ out
 # Logs
 logs
 *.log
+app/service/spade-service.wrapper.log
 
 # Runtime data
 pids

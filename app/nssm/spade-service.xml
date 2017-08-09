@@ -1,0 +1,49 @@
+
+<configuration>
+
+  <!-- ID of the service. It should be unique accross the Windows system-->
+  <id>com.prominentedge.spade-service-wrapper</id>
+  <!-- Display name of the service -->
+  <name>spade-service-wrapper</name>
+  <!-- Service description -->
+  <description>launches spade as a windows service</description>
+
+  <!-- Path to the executable, which should be started -->
+  <executable>%BASE%\..\..\..\spade.exe</executable>
+  <arguments>-- --service</arguments>
+
+  <!--
+    OPTION: stoptimeout
+    Time to wait for the service to gracefully shutdown the executable before we forcibly kill it
+    Default value: 15 seconds
+  -->
+  <stoptimeout>15 sec</stoptimeout>
+
+  <!--
+    OPTION: logpath
+    Sets a custom logging directory for all logs being produced by the service wrapper
+    Default value: Directory, which contains the executor
+    <logpath>%BASE%\logs</logpath>
+  -->
+
+  <!--
+    OPTION: log
+    Defines logging mode for logs produced by the executable.
+    Supported modes:
+      * append - Rust update the existing log
+      * none - Do not save executable logs to the disk
+      * reset - Wipe the log files on startup
+      * roll - Rotate logs based on size
+      * roll-by-time - Rotate logs based on time
+      * rotate - Rotate logs based on size, (8 logs, 10MB each). This mode is deprecated, use "roll"
+    Default mode: append
+
+    Each mode has different settings.
+    See https://github.com/kohsuke/winsw/blob/master/doc/loggingAndErrorReporting.md for more details
+    in KB not byte
+  -->
+  <log mode="roll">
+    <sizeThreshold>10000</sizeThreshold>
+    <keepFiles>9</keepFiles>
+  </log>
+</configuration>

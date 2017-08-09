@@ -44,7 +44,7 @@
       "main.prod.js.map",
       "actions.json",
       "images/",
-      "nssm/"
+      "service/"
     ],
     "asar" : false,
     "dmg": {

@@ -4,3 +4,4 @@
 *.icns binary
 *.exe binary
 *.bat text eol=crfl
+app/service/*.xml text eol=crfl

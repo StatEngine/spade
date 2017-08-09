@@ -1,4 +1,4 @@
-import { app, Tray, Menu } from 'electron';
+import { app, Tray, Menu, dialog } from 'electron';
 import path from 'path';
 import runas from 'runas';
 import util from 'util';
@@ -37,47 +37,60 @@ class TrayControl {
   }
 
   serviceAdd() {
-    const exe = path.join(__dirname, 'nssm', 'win64', 'nssm.exe');
+    const exe = path.join(__dirname, 'service', 'spade-service.exe');
     const opts = {
       hide: true,
       admin: true,
       catchOutput: true,
     };
-    let output1, output2, output3, output4, output5, output6, output7, output8, output9, output10 = null;
-    output1 = runas(exe, ['stop', 'spade'], opts);
-    setTimeout(function () {
-      output2 = runas(exe, ['remove', 'spade', 'confirm'], opts);
-      setTimeout(function() {
-        output3 = runas(exe, ['install', 'spade', 'C:\\Users\\syrusm\\AppData\\Local\\Programs\\spade\\spade.exe'], opts);
-        output4 = runas(exe, ['set', 'spade', 'AppParameters', '--', '--service'], opts);
-        output5 = runas(exe, ['set', 'spade', 'AppRotateFiles', '1'], opts);
-        output6 = runas(exe, ['set', 'spade', 'AppRotateOnline', '1'], opts);
-        output7 = runas(exe, ['set', 'spade', 'AppRotateBytes', '10000000'], opts);
-        output8 = runas(exe, ['set', 'spade', 'AppStdout', 'C:\\Users\\syrusm\\AppData\\Local\\Programs\\spade\\log.txt'], opts);
-        output9 = runas(exe, ['set', 'spade', 'AppStderr', 'C:\\Users\\syrusm\\AppData\\Local\\Programs\\spade\\log.txt'], opts);
-        output10 = runas(exe, ['start', 'spade'], opts);
-        console.log('----[ serviceAdd: ', output1, output2, output3, output4, output5, output6, output7, output8, output9, output10);
+    const output1 = runas(exe, ['stop'], opts);
+    setTimeout(() => {
+      const output2 = runas(exe, ['uninstall'], opts);
+      setTimeout(() => {
+        const output3 = runas(exe, ['install'], opts);
+        setTimeout(() => {
+          const output4 = runas(exe, ['start'], opts);
+          console.log('----[ serviceAdd: ', output1, output2, output3, output4);
+        }, 4);
       }, 4);
     }, 4);
   }
 
   serviceRemove() {
-    const exe = path.join(__dirname, 'nssm', 'win64', 'nssm.exe');
+    const exe = path.join(__dirname, 'service', 'spade-service.exe');
     const opts = {
       hide: true,
       admin: true,
       catchOutput: true,
     };
-    let output1, output2 = null;
-    output1 = runas(exe, ['stop', 'spade'], opts);
-    setTimeout(function () {
-      output2 = runas(exe, ['remove', 'spade', 'confirm'], opts);
+    const output1 = runas(exe, ['stop'], opts);
+    setTimeout(() => {
+      const output2 = runas(exe, ['uninstall'], opts);
       console.log('----[ serviceRemove: ', output1, output2);
     }, 4);
   }
 
-  serviceRest() {
-    const exe = path.join(__dirname, 'nssm', 'service-reset.bat');
+  // Note: running with runas doesn't return the response of status.
+  serviceStatusOld() {
+    const exe = path.join(__dirname, 'service', 'spade-service.exe');
+    const opts = {
+      hide: true,
+      admin: false,
+      catchOutput: true,
+    };
+    let output1 = null;
+    output1 = runas(exe, ['status'], opts);
+    console.log('----[ serviceStatus: ', output1);
+  }
+
+  serviceStatus() {
+    const exe = path.join(__dirname, 'service', 'spade-service.exe');
+    const out = child_process.execSync(`"${exe}" status`);
+    console.log(`----[ serviceStatus2 out: ${out}\n`);
+  }
+
+  serviceInstallFull() {
+    const exe = path.join(__dirname, 'service', 'service-install-full.bat');
     const opts = {
       hide: true,
       admin: true,
@@ -85,35 +98,20 @@ class TrayControl {
     };
     let output1 = null;
     output1 = runas(exe, [], opts);
-    console.log('----[ serviceRest: ', output1);
+    console.log('----[ serviceInstallFull: ', output1);
   }
 
-  serviceStatus() {
-    const exe = path.join(__dirname, 'nssm', 'win64', 'nssm.exe');
+
+  serviceUninstallFull() {
+    const exe = path.join(__dirname, 'service', 'service-uninstall-full.bat');
     const opts = {
       hide: true,
-      admin: false,
+      admin: true,
       catchOutput: true,
     };
     let output1 = null;
-    output1 = runas(exe, ['status', 'spade'], opts);
-    console.log('----[ serviceStatus: ', output1);
-  }
-
-  serviceStatus2() {
-    const exe = path.join(__dirname, 'nssm', 'win64', 'nssm.exe');
-    const out = child_process.execSync(`"${exe}" status spade`);
-    console.log(`----[ serviceStatus2 out: ${out}`);
-    /*
-    child_process.exec(`"${exe}" status spade`, (err, stdout, stderr) => {
-      if (err) {
-        console.log('----[ serviceStatus2 error!');
-        return;
-      }
-      console.log(`----[ serviceStatus2 stdout: ${stdout}`);
-      console.log(`----[ serviceStatus2 stderr: ${stderr}`);
-    });
-    */
+    output1 = runas(exe, [], opts);
+    console.log('----[ serviceUninstallFull: ', output1);
   }
 
   createAppTray() {
@@ -158,18 +156,6 @@ class TrayControl {
       },
     },
     {
-      label: 'ServiceStatus2',
-      click() {
-        self.serviceStatus2();
-      },
-    },
-    {
-      label: 'ServiceReset',
-      click() {
-        self.serviceRest();
-      },
-    },
-    {
       label: 'ServiceAdd',
       click() {
         self.serviceAdd();
@@ -179,6 +165,18 @@ class TrayControl {
       label: 'ServiceRemove',
       click() {
         self.serviceRemove();
+      },
+    },
+    {
+      label: 'ServiceInstallFull',
+      click() {
+        self.ServiceInstallFull();
+      },
+    },
+    {
+      label: 'ServiceUninstallFull',
+      click() {
+        self.ServiceUninstallFull();
       },
     }
     ]);
