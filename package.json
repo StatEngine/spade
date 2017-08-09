@@ -46,6 +46,7 @@
       "images/",
       "nssm/"
     ],
+    "asar" : false,
     "dmg": {
       "contents": [
         {

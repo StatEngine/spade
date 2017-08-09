@@ -1,10 +1,13 @@
 @echo off
 @echo off
 set nssm_dir=%~dp0
+set spade_install_dir=%nssm_dir%\..\..\..
 set nssm=%nssm_dir%\win64\nssm.exe
 set nssm_admin=%nssm_dir%\elevate.exe -k %nssm_dir%\win64\nssm.exe
-set spade_exe=C:\Users\syrusm\AppData\Local\Programs\spade\spade.exe
-set spade_log=C:\Users\syrusm\AppData\Local\Programs\spade\log.txt
+REM -- this is where the app is installed on the machine
+REM -- example win7 C:\Users\<user>\AppData\Local\Programs\spade
+set spade_exe=%spade_install_dir%\spade.exe
+set spade_log=%spade_install_dir%\log.txt
 
 echo register service, and configure
 %nssm_admin% install spade %spade_exe%
