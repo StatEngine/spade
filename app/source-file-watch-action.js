@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import mvElseCp from 'mv';
 import watch from 'gulp-watch';
-
+import Reporter from './reporter';
 import { SourceAction } from './actions';
 
 
@@ -18,6 +18,7 @@ export default class SourceFileWatchAction extends SourceAction {
     // Note: no need to call super.init() as this.startSchedule(); since we dont
     // have to poll the source and instead watch triggers based on file events
     this.stream = this.watch(this.config.fileWatch.folder);
+    Reporter.sendEvent('sourceFileWatchAction.init.success');
   }
 
   finalize() {
@@ -35,10 +36,14 @@ export default class SourceFileWatchAction extends SourceAction {
     const resolvedDirectory = path.resolve(directoryToWatch);
     console.log('Performing watch on ', resolvedDirectory);
     const pattern = `${resolvedDirectory}\\*`;
-    const moveFolder = this.config.fileWatch.processed.folder;
+    let moveFolder = this.config.fileWatch.processed.folder;
     // Join does both a concat and normalize
-    const destDir = path.join(resolvedDirectory, path.sep, moveFolder);
-    console.log('Moving files to: ', destDir);
+    if (path.isAbsolute(moveFolder)) {
+      moveFolder = path.resolve(moveFolder);
+    } else {
+      moveFolder = path.join(resolvedDirectory, path.sep, moveFolder);
+    }
+    console.log('Moving files to: ', moveFolder);
     return watch(
       pattern,
       {
@@ -50,7 +55,7 @@ export default class SourceFileWatchAction extends SourceAction {
       (event) => {
         const basename = path.basename(event.path);
         const sourceFile = event.path;
-        const destFile = path.join(destDir, path.sep, basename);
+        const destFile = path.join(moveFolder, path.sep, basename);
         console.log('Event: ', event, 'mv source: ', sourceFile,
         'mv dest: ', destFile);
 
@@ -59,7 +64,6 @@ export default class SourceFileWatchAction extends SourceAction {
           // it first created all the necessary directories, and then
           // tried fs.rename, then falls back to using ncp to copy the dir
           // to dest and then rimraf to remove the source dir
-          console.log('Hit Run Callback');
           mvElseCp(
             sourceFile,
             destFile,
@@ -71,17 +75,23 @@ export default class SourceFileWatchAction extends SourceAction {
                 // TODO: double check mvElseCp implementation
                 if (fs.existsSync(event.path)) {
                   fs.unlink(event.path, (rmErr) => {
-                    console.log(`====[ Remove failed for ${event.path}`, rmErr);
+                    const removeException = `====[ Remove failed for ${event.path}`;
+                    console.log(removeException, rmErr);
+                    Reporter.sendException(removeException);
                   });
                 }
               } else {
-                console.log('----[ mvElsecp failed. ', mvErr);
+                const moveException = `----[ mvElsecp failed. ${mvErr}`;
+                console.log(moveException);
+                Reporter.sendException(moveException);
               }
             },
           );
         })
         .catch((err) => {
-          console.log('=====[ Destination run failed:', err);
+          const runException = `=====[ Destination run failed: ${err}`;
+          console.log(runException);
+          Reporter.sendException(runException);
         });
       },
     );

@@ -43,6 +43,7 @@
       "main.prod.js",
       "main.prod.js.map",
       "actions.json",
+      "git-state.json",
       "images/",
       "service/"
     ],
@@ -167,6 +168,7 @@
     "flow-bin": "^0.48.0",
     "flow-runtime": "^0.13.0",
     "flow-typed": "^2.1.2",
+    "git-rev-sync": "^1.9.1",
     "html-webpack-plugin": "^2.29.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^20.0.4",

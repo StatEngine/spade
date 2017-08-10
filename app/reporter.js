@@ -40,11 +40,11 @@ export default class Reporter {
     xhr.send(null);
   }
 
-  static sendEvent(category, action, label, value) {
+  static sendEvent(label, value) {
     const params = {
       t: 'event',
-      ec: category,
-      ea: action,
+      ec: spade.getDepartmentId(),
+      ea: spade.getVersion(),
     };
 
     if (label) { params.el = label; }

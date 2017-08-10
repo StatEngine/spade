@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import S3 from 'aws-sdk/clients/s3';
 import { DestinationAction } from './actions';
+import Reporter from './reporter';
 
 
 /* class S3Error extends Error {
@@ -45,6 +46,7 @@ export default class DestinationS3Action extends DestinationAction {
         console.log('S3 Bucket Valid and accessible', data);
       }
     });*/
+    Reporter.sendEvent('destinationS3Action.init.success');
   }
 
   run(name, payload) {
@@ -57,8 +59,10 @@ export default class DestinationS3Action extends DestinationAction {
           writePayload = fs.readFileSync(name);
         } catch (e) {
           writePayload = null;
-          console.log('====[ Unable to read file', name, e);
-          reject(e);
+          const exceptionString = `====[ Unable to read file ${name}: ${e}`;
+          console.log(exceptionString);
+          Reporter.sendException(exceptionString);
+          reject(exceptionString);
         }
         keyName = path.basename(keyName);
       }
@@ -70,7 +74,9 @@ export default class DestinationS3Action extends DestinationAction {
       this.uploadToS3(s3Params, (s3Err, s3Data) => {
         if (s3Err) {
           this.setError(s3Err);
-          console.log('Could not upload file to s3: ', s3Params.Key, s3Err.stack);
+          const uploadException = `Could not upload file to s3: ${s3Params.Key}`;
+          console.log(uploadException, s3Err.stack);
+          Reporter.sendException(uploadException);
           reject(s3Err);
         } else {
           console.log('File Uploaded to s3: ', s3Data);
@@ -82,6 +88,7 @@ export default class DestinationS3Action extends DestinationAction {
 
   finalize() {
     console.log('S3Destination.finalize: ', this.config);
+    Reporter.sendEvent('destinationS3Action.shutdown.success');
     this.setStatus('SHUTDOWN');
   }
 }

@@ -5,7 +5,8 @@ import DestinationS3Action from './destination-s3-action';
 import SourceFileWatchAction from './source-file-watch-action';
 import SourceSqliteAction from './source-sqlite-action';
 import Reporter from './reporter';
-
+import gitState from './git-state.json';
+import appPackage from './package.json';
 
 export class Spade {
   constructor() {
@@ -17,7 +18,8 @@ export class Spade {
     // TODO: load from settings
     this.userConcent = true;
     this.departmentId = 12345;
-    this.version = 'v1'; // TODO: include npm version + commit hash
+    this.gitState = gitState;
+    this.version = `${appPackage.version}:${gitState.commit}`;
   }
 
   loadConfig(configFilename) {
@@ -28,6 +30,7 @@ export class Spade {
     try {
       // Read in the configuration json file. This may be from s3 or http endpoint
       this.config = JSON.parse(fs.readFileSync(configFilename));
+      this.departmentId = this.config.departmentId;
     } catch (e) {
       console.error('Unable to load configuration object.', e);
       this.config = null;
@@ -35,7 +38,7 @@ export class Spade {
     return this.config;
   }
 
-  getHasUserConsent() {
+  getHasUserConseant() {
     return this.userConcent;
   }
 
@@ -44,11 +47,13 @@ export class Spade {
   }
 
   getVersion() {
-    return `${this.version}:commit hash`;
+    return this.version;
   }
 
   // load config, create all actions
   init(config) {
+    console.log('Package version: ', process.env.npm_package_version);
+
     if (typeof config === 'string') {
       this.config = this.loadConfig(config);
     } else if (typeof config === 'object') {
@@ -59,7 +64,8 @@ export class Spade {
     }
 
     this.startReporterHeartbeat();
-    Reporter.sendEvent('spade.init', 'begin');
+    Reporter.sendEvent('spade.init.begin');
+    console.log('Spade Version: ', this.getVersion());
 
     this.sources = {};
     this.destinations = {};
@@ -87,6 +93,7 @@ export class Spade {
       } catch (e) {
         console.log('====[ Unable to init destination Action: ', destination.config, e.stack);
         destination = null;
+        Reporter.sendException('Unable to init destination action');
       }
     }
 
@@ -111,13 +118,15 @@ export class Spade {
       } catch (e) {
         console.log('====[ Unable to init source Action: ', source.config, e.stack);
         source = null;
+        Reporter.sendException('Unable to init source action');
       }
     }
+    Reporter.sendEvent('spade.init.end');
   }
 
   // stop all tasks
   finalize() {
-    Reporter.sendEvent('spade.finalize', 'begin');
+    Reporter.sendEvent('spade.finalize.begin');
     const createdSourcesKeys = Object.keys(this.sources);
     for (let i = 0; i < createdSourcesKeys.length; i += 1) {
       const key = createdSourcesKeys[i];
@@ -127,7 +136,9 @@ export class Spade {
         source.stopSchedule();
         source.finalize();
       } catch (e) {
-        console.log('====[ Unable to finalize source Action: ', source.config, e.stack);
+        const finalizeException = `====[ Unable to finalize source Action: ${source.config}`;
+        console.log(finalizeException, e.stack);
+        Reporter.sendException(finalizeException);
       }
     }
 
@@ -144,6 +155,7 @@ export class Spade {
 
     Reporter.sendTiming('spade.window', 'sessionDuration', Date.now() - this.sessionStart);
     this.stopReporterHeartbeat();
+    Reporter.sendEvent('spade.finalize.end');
   }
 
   static createDestinationAction(conf) {
@@ -154,7 +166,9 @@ export class Spade {
         action = new DestinationS3Action(conf);
       }
     } catch (e) {
+      const destinationCreateErr = `Unable to create destination action: ${e}`;
       action = null;
+      Reporter.sendException(destinationCreateErr);
     }
     return action;
   }
@@ -186,7 +200,7 @@ export class Spade {
     if (this.config.reporter && this.config.reporter.trigger &&
     this.config.reporter.trigger.schedule) {
       this.heartbeat = schedule.scheduleJob(this.config.reporter.trigger.schedule, () => {
-        Reporter.sendEvent('core.telemetry', 'ping');
+        Reporter.sendEvent('spade.heartbeat.ping');
       });
     }
   }
