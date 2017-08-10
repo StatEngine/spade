@@ -170,13 +170,13 @@ class TrayControl {
     {
       label: 'ServiceInstallFull',
       click() {
-        self.ServiceInstallFull();
+        self.serviceInstallFull();
       },
     },
     {
       label: 'ServiceUninstallFull',
       click() {
-        self.ServiceUninstallFull();
+        self.serviceUninstallFull();
       },
     }
     ]);
