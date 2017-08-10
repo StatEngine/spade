@@ -3,7 +3,7 @@
   "reporter": {
     "userConsent": true,
     "trigger": {
-      "schedule": "*/1 * * * *"
+      "schedule": "0 */1 * ? * *"
     }
   },
   "destinations": {
@@ -21,23 +21,21 @@
       "enabled": true,
       "destination": "incidents",
       "trigger": {
-        "schedule": "*/1 * * * *"
+        "schedule": "0 */1 * ? * *"
       },
       "sqlite": {
-          "user": "username",
-          "password": "my-password",
-          "server": "localhost",
-          "database": "data",
-          "tables": [
-            {
-              "name": "Response_Master_Incident",
-              "sortKey": "Master_Incident_Number"
-            }
-          ],
-          "options": {
-            "encrypt": true
-          },
-        "mssql": {
+        "user": "username",
+        "password": "my-password",
+        "server": "localhost",
+        "database": "data",
+        "tables": [
+          {
+            "name": "Response_Master_Incident",
+            "sortKey": "Master_Incident_Number"
+          }
+        ],
+        "options": {
+          "encrypt": true
         }
       }
     },
@@ -47,7 +45,7 @@
       "fileWatch": {
         "folder": "C:/Users/Admin/Documents/spade_new/other-folder",
         "processed": {
-            "folder": "./processed"
+          "folder": "./processed"
         }
       }
     },
@@ -57,7 +55,7 @@
       "fileWatch": {
         "folder": "C:\\Users\\Admin\\Documents\\spade_new\\cad-folder",
         "processed": {
-            "folder": "./processed"
+          "folder": "./processed"
         }
       }
     }
