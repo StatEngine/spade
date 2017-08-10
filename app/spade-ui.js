@@ -17,6 +17,7 @@ import tray from './tray';
 import spade from './spade';
 
 let mainWindow = null;
+let quitApp = false;
 
 export default function init() {
   // make sure only one version of the app can be ran.
@@ -54,7 +55,7 @@ export default function init() {
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
     const extensions = [
       'REACT_DEVELOPER_TOOLS',
-      'REDUX_DEVTOOLS'
+      'REDUX_DEVTOOLS',
     ];
 
     return Promise
@@ -70,7 +71,7 @@ export default function init() {
     mainWindow = new BrowserWindow({
       show: false,
       width: 1024,
-      height: 728
+      height: 728,
     });
 
     mainWindow.loadURL(`file://${__dirname}/app.html`);
@@ -85,9 +86,19 @@ export default function init() {
       mainWindow.focus();
     });
 
+    mainWindow.on('close', (e) => {
+      if (quitApp) {
+        // the user tried to quit the app as opposed closing windows
+        mainWindow = null;
+      } else {
+        // the user only tried to close the window
+        e.preventDefault();
+        mainWindow.hide();
+      }
+    });
+
     mainWindow.on('closed', () => {
       reporter.sendTiming('spade', 'sessionDuration', Date.now() - sessionLoadTime);
-      mainWindow = null;
     });
   };
 
@@ -113,18 +124,16 @@ export default function init() {
   app.on('activate', () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (mainWindow === null) {
-      createWindow();
-    }
+    mainWindow.show();
+  });
+
+  // 'before-quit' is emitted when Electron receives
+  // the signal to exit and wants to start closing windows
+  app.on('before-quit', () => {
+    quitApp = true;
   });
 
   app.on('window-all-closed', () => {
     console.log('----[ all windows have been closed, not quitting. Can only quit app from tray icon');
-
-    // Respect the OSX convention of having the application in memory even
-    // after all windows have been closed
-    // if (process.platform !== 'darwin') {
-    //  app.quit();
-    // }
   });
 }
