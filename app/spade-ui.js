@@ -19,6 +19,22 @@ import spade from './spade';
 let mainWindow = null;
 
 export default function init() {
+  // make sure only one version of the app can be ran.
+  const isSecondInstance = app.makeSingleInstance(() => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+      }
+      mainWindow.focus();
+    }
+  });
+
+  if (isSecondInstance) {
+    console.log('====[ ERROR: attempt to launch second instance of app while another instance is running. Exiting!');
+    app.quit();
+  }
+
   const sessionLoadTime = Date.now();
 
   if (process.env.NODE_ENV === 'production') {
