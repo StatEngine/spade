@@ -47,7 +47,7 @@
       "images/",
       "service/"
     ],
-    "asar" : false,
+    "asar": false,
     "dmg": {
       "contents": [
         {
@@ -199,6 +199,7 @@
     "electron-debug": "^1.2.0",
     "electron-settings": "^3.1.1",
     "font-awesome": "^4.7.0",
+    "git-rev-sync": "^1.9.1",
     "gulp": "^3.9.1",
     "history": "^4.6.3",
     "material-ui": "^0.18.3",

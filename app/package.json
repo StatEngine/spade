@@ -5,14 +5,14 @@
   "description": "A component of StatEngine which does the dirty work of getting data to the processing pipeline.",
   "main": "./main.prod.js",
   "author": {
-    "name": "C. T. Lin",
-    "email": "chentsulin@gmail.com",
+    "name": "Prominent Edge",
+    "email": "contact@statengine.com",
     "url": "https://github.com/chentsulin"
   },
   "scripts": {
     "postinstall": "npm rebuild --runtime=electron --target=1.6.6 --disturl=https://atom.io/download/atom-shell --build-from-source"
   },
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "gulp-watch": "^4.3.11",
     "runas": "^3.1.1",
