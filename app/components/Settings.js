@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import React from 'react';
+import { remote } from 'electron';
 import { NumberInput } from 'material-ui-number-input';
 import {
   Card,
@@ -17,9 +18,8 @@ import FileInput from './FileInput';
 
 export default class Settings extends React.Component {
   static configPath() {
-    // TODO: verify that these cases work when running as an executable
     if (process.env.NODE_ENV === 'production') {
-      return path.join(process.cwd(), 'app', 'actions.json');
+      return path.join(remote.app.getAppPath(), 'actions.json');
     }
     return path.join(__dirname, 'actions.json');
   }
