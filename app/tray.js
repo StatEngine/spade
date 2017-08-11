@@ -73,7 +73,22 @@ class TrayControl {
       {
         label: 'ServiceStatus',
         click() {
-          const status = serviceHelper.getStatus();
+          const status = serviceHelper.status();
+          dialog.showMessageBox({
+            title: 'tray',
+            message: status ? status : '< none >',
+          });
+          console.log('----[ status: ', status);
+        },
+      },
+      {
+        label: 'ServiceStatusOld',
+        click() {
+          const status = serviceHelper.statusOld();
+          dialog.showMessageBox({
+            title: 'tray',
+            message: status ? status : '< none >',
+          });
           console.log('----[ status: ', status);
         },
       },

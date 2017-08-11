@@ -33,7 +33,9 @@ export default function init() {
   });
 
   if (isSecondInstance) {
-    console.log('====[ ERROR: attempt to launch second instance of app while another instance is running. Exiting!');
+    console.log('=================================================================================================');
+    console.log('====[ ERROR: attempt to launch second instance of app while another instance is running. Exiting!!');
+    console.log('=================================================================================================');
     app.quit();
   }
 

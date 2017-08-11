@@ -15,30 +15,71 @@ export default class ServiceHelper {
     };
   }
 
-  static isRunning() {
-    if (ServiceHelper.getStatus() === 'started') {
+  static execute(args) {
+    return new Promise((resolve, reject) => {
+      childProcess.execFile(ServiceHelper.EXE, args, { encoding: 'utf16le' },
+        (error, stdout, stderr) => {
+          // Convert Buffer to String and remove trailing EOLs
+          const stdoutStr = stdout.toString('utf8').trim();
+          const stderrStr = stderr.toString('utf8').trim();
+          let err = error;
+          // Treat warnings on stderr as error
+          if (stderrStr && !err) {
+            err = new Error(stderrStr);
+          }
+          // ENOENT
+          if (err && err.code === 'ENOENT') {
+            err = new Error('spade-service not found.');
+          }
+          // Handle error
+          if (err) {
+            reject(err);
+          } else {
+            resolve(stdoutStr);
+          }
+        });
+    });
+  }
+
+  static isStarted() {
+    if (ServiceHelper.getStatus() === 'Started') {
       return true;
     }
     return false;
   }
 
+  static isStopped() {
+    if (ServiceHelper.getStatus().toLowerCase() === 'Stopped') {
+      return true;
+    }
+    return false;
+  }
+
+  static isNonExistent() {
+    if (ServiceHelper.getStatus().toLowerCase() === 'NonExistent') {
+      return true;
+    }
+    return false;
+  }
+
+  // valid states: Started, Stopped, NonExistent
   static status() {
-    const out = childProcess.execFileSync(`"${ServiceHelper.EXE}"`, ['status']);
+    let out = childProcess.execSync(`${ServiceHelper.EXE} status`);
+    out = out.toString('utf8').trim();
     console.log(`----[ getStatus: ${out}\n`);
     return out;
   }
 
   // Note: running with runas doesn't return the response of status.
+  //       test other forks of runas if needed
   static statusOld() {
-    const opts = {
+    const out = runas(ServiceHelper.EXE, ['status'], {
       hide: true,
       admin: false,
       catchOutput: true,
-    };
-    let output1 = null;
-    output1 = runas(ServiceHelper.EXE, ['status'], opts);
-    console.log('----[ serviceStatus: ', output1);
-    return output1;
+    });
+    console.log('----[ statusOld: ', out);
+    return out;
   }
 
   static add() {
