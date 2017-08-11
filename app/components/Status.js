@@ -32,11 +32,11 @@ export default class Status extends Component {
      this.setState({
        intervalId: setInterval(this.checkServiceStatus.bind(this), 4000)
      });
-  },
+  }
 
   componentWillUnmount() {
      clearInterval(this.state.intervalId);
-  },
+  }
 
   checkServiceStatus() {
     const { status } = this.state;
