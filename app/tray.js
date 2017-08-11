@@ -1,8 +1,6 @@
 import { app, Tray, Menu, dialog } from 'electron';
 import path from 'path';
-import runas from 'runas';
-import util from 'util';
-import child_process from 'child_process';
+import serviceHelper from './service/service-helper';
 
 class TrayControl {
   init(mainWindow) {
@@ -36,84 +34,6 @@ class TrayControl {
     this.createAppTray();
   }
 
-  serviceAdd() {
-    const exe = path.join(__dirname, 'service', 'spade-service.exe');
-    const opts = {
-      hide: true,
-      admin: true,
-      catchOutput: true,
-    };
-    const output1 = runas(exe, ['stop'], opts);
-    setTimeout(() => {
-      const output2 = runas(exe, ['uninstall'], opts);
-      setTimeout(() => {
-        const output3 = runas(exe, ['install'], opts);
-        setTimeout(() => {
-          const output4 = runas(exe, ['start'], opts);
-          console.log('----[ serviceAdd: ', output1, output2, output3, output4);
-        }, 4);
-      }, 4);
-    }, 4);
-  }
-
-  serviceRemove() {
-    const exe = path.join(__dirname, 'service', 'spade-service.exe');
-    const opts = {
-      hide: true,
-      admin: true,
-      catchOutput: true,
-    };
-    const output1 = runas(exe, ['stop'], opts);
-    setTimeout(() => {
-      const output2 = runas(exe, ['uninstall'], opts);
-      console.log('----[ serviceRemove: ', output1, output2);
-    }, 4);
-  }
-
-  // Note: running with runas doesn't return the response of status.
-  serviceStatusOld() {
-    const exe = path.join(__dirname, 'service', 'spade-service.exe');
-    const opts = {
-      hide: true,
-      admin: false,
-      catchOutput: true,
-    };
-    let output1 = null;
-    output1 = runas(exe, ['status'], opts);
-    console.log('----[ serviceStatus: ', output1);
-  }
-
-  serviceStatus() {
-    const exe = path.join(__dirname, 'service', 'spade-service.exe');
-    const out = child_process.execSync(`"${exe}" status`);
-    console.log(`----[ serviceStatus2 out: ${out}\n`);
-  }
-
-  serviceInstallFull() {
-    const exe = path.join(__dirname, 'service', 'service-install-full.bat');
-    const opts = {
-      hide: true,
-      admin: true,
-      catchOutput: true,
-    };
-    let output1 = null;
-    output1 = runas(exe, [], opts);
-    console.log('----[ serviceInstallFull: ', output1);
-  }
-
-
-  serviceUninstallFull() {
-    const exe = path.join(__dirname, 'service', 'service-uninstall-full.bat');
-    const opts = {
-      hide: true,
-      admin: true,
-      catchOutput: true,
-    };
-    let output1 = null;
-    output1 = runas(exe, [], opts);
-    console.log('----[ serviceUninstallFull: ', output1);
-  }
-
   createAppTray() {
     console.log('----[ TrayControl.createAppTray');
     const tray = new Tray(this.iconTray);
@@ -123,62 +43,88 @@ class TrayControl {
     this.mainWindow.tray = tray;
     const self = this;
     const contextMenuShow = Menu.buildFromTemplate([
-    {
-      label: 'Show',
-      click() {
-        this.mainWindow.show();
+      {
+        label: 'Show',
+        click() {
+          self.mainWindow.show();
+        },
       },
-    },
-    {
-      label: 'Quit',
-      click() {
-        app.quit();
+      {
+        label: 'Quit',
+        click() {
+          app.quit();
+        },
       },
-    }]);
+    ]);
 
     const contextMenuHide = Menu.buildFromTemplate([
-    {
-      label: 'Hide',
-      click() {
-        this.mainWindow.hide();
+      {
+        label: 'Hide',
+        click() {
+          self.mainWindow.hide();
+        },
       },
-    },
-    {
-      label: 'Quit',
-      click() {
-        app.quit();
+      {
+        label: 'Quit',
+        click() {
+          app.quit();
+        },
       },
-    },
-    {
-      label: 'ServiceStatus',
-      click() {
-        self.serviceStatus();
+      {
+        label: 'ServiceStatus',
+        click() {
+          const status = serviceHelper.getStatus();
+          console.log('----[ status: ', status);
+        },
       },
-    },
-    {
-      label: 'ServiceAdd',
-      click() {
-        self.serviceAdd();
+      {
+        label: 'ServiceAdd',
+        click() {
+          serviceHelper.add();
+        },
       },
-    },
-    {
-      label: 'ServiceRemove',
-      click() {
-        self.serviceRemove();
+      {
+        label: 'ServiceRemove',
+        click() {
+          serviceHelper.remove();
+        },
       },
-    },
-    {
-      label: 'ServiceInstallFull',
-      click() {
-        self.serviceInstallFull();
+      {
+        label: 'ServiceStart',
+        click() {
+          serviceHelper.start();
+        },
       },
-    },
-    {
-      label: 'ServiceUninstallFull',
-      click() {
-        self.serviceUninstallFull();
+      {
+        label: 'ServiceStop',
+        click() {
+          serviceHelper.stop();
+        },
       },
-    }
+      {
+        label: 'ServiceAddFull',
+        click() {
+          serviceHelper.addFull();
+        },
+      },
+      {
+        label: 'ServiceAddFullBat',
+        click() {
+          serviceHelper.addFullBat();
+        },
+      },
+      {
+        label: 'ServiceRemoveFull',
+        click() {
+          serviceHelper.removeFull();
+        },
+      },
+      {
+        label: 'ServiceRemoveFullBat',
+        click() {
+          serviceHelper.removeFullBat();
+        },
+      },
     ]);
 
     if (!this.mainWindow.isMinimized() && !this.mainWindow.isVisible()) {
