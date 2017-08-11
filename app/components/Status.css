@@ -1,0 +1,12 @@
+.container {
+  background-color: #f3f3f3;
+  transition: all 500ms;
+  height: 0;
+  opacity: 0;
+  line-height: 54px;
+}
+
+.visible {
+  height: 54px;
+  opacity: 1;
+}

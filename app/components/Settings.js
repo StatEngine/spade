@@ -11,6 +11,7 @@ import {
   FlatButton,
   MenuItem,
   SelectField,
+  Snackbar,
   TextField,
   Toggle,
 } from 'material-ui';
@@ -59,10 +60,11 @@ export default class Settings extends React.Component {
   constructor(props) {
     super(props);
 
-    this.saveSettings = this.saveSettings.bind(this);
+    this.alterSettings = this.alterSettings.bind(this);
+    this.handleNotificationClose = this.handleNotificationClose.bind(this);
 
     this.state = {
-      loading: true,
+      saved: false,
       config: {
       },
     };
@@ -85,14 +87,30 @@ export default class Settings extends React.Component {
   componentWillMount() {
     const config = Settings.loadConfig();
 
+    Object.keys(config.sources).sort()
+      .forEach((key, index) => config.sources[key].uid = index + 500);
+
+    Object.keys(config.destinations).sort()
+      .forEach((key, index) => config.destinations[key].uid = index + 500);
+
     this.setState({
       config,
     });
   }
 
-  saveSettings() {
-    this.setState(this.state);
-    Settings.saveConfig(this.state.config);
+  alterSettings() {
+    const config = JSON.parse(JSON.stringify(this.state.config));
+    const sourcesKeys = Object.keys(config.sources);
+    const destinationsKeys = Object.keys(config.destinations);
+
+    sourcesKeys.forEach(key => delete config.sources[key].uid);
+    destinationsKeys.forEach(key => delete config.destinations[key].uid);
+
+    this.setState({
+      ...this.state,
+      saved: true,
+    });
+    Settings.saveConfig(config);
     // TODO: run batch file to restart service
 
     console.log('this.data: ', this.state);
@@ -100,6 +118,12 @@ export default class Settings extends React.Component {
 
   extractSourceType(source) {
     return this.sourceTypes.filter(st => st.key in source)[0].key;
+  }
+
+  handleNotificationClose() {
+    this.setState({
+      saved: false
+    });
   }
 
   renderSourceInputs(sourceKey, source) {
@@ -113,7 +137,7 @@ export default class Settings extends React.Component {
             label="Folder"
             onChange={(e) => {
               sourceConfig.folder = e.target.value;
-              this.saveSettings();
+              this.alterSettings();
             }}
             value={sourceConfig.folder}
           />
@@ -121,7 +145,7 @@ export default class Settings extends React.Component {
             label="Processed Folder"
             onChange={(e) => {
               sourceConfig.processed.folder = e.target.value;
-              this.saveSettings();
+              this.alterSettings();
             }}
             value={sourceConfig.processed.folder}
           />
@@ -137,7 +161,7 @@ export default class Settings extends React.Component {
             value={sourceConfig.user}
             onChange={(e) => {
               sourceConfig.user = e.target.value;
-              this.saveSettings();
+              this.alterSettings();
             }}
           /><br />
 
@@ -146,7 +170,7 @@ export default class Settings extends React.Component {
             value={sourceConfig.password}
             onChange={(e) => {
               sourceConfig.password = e.target.value;
-              this.saveSettings();
+              this.alterSettings();
             }}
           /><br />
 
@@ -155,7 +179,7 @@ export default class Settings extends React.Component {
             value={sourceConfig.server}
             onChange={(e) => {
               sourceConfig.server = e.target.value;
-              this.saveSettings();
+              this.alterSettings();
             }}
           /><br />
 
@@ -164,7 +188,7 @@ export default class Settings extends React.Component {
             value={sourceConfig.database}
             onChange={(e) => {
               sourceConfig.database = e.target.value;
-              this.saveSettings();
+              this.alterSettings();
             }}
           /><br />
 
@@ -177,7 +201,7 @@ export default class Settings extends React.Component {
               toggled={sourceConfig.options.encrypt}
               onToggle={(e, isInputChecked) => {
                 sourceConfig.options.encrypt = isInputChecked;
-                this.saveSettings();
+                this.alterSettings();
               }}
             />
           </div>
@@ -191,10 +215,16 @@ export default class Settings extends React.Component {
 
   renderSources() {
     const { config } = this.state;
-    const sourcesKeys = Object.keys(config.sources);
-    const destinationKeys = Object.keys(config.destinations);
 
-    return sourcesKeys.map((sourceKey) => {
+    const sourcesKeys = Object
+      .keys(config.sources)
+      .sort((a, b) => config.sources[a].uid - config.sources[b].uid);
+
+    const destinationKeys = Object
+      .keys(config.destinations)
+      .sort((a, b) => config.destinations[a].uid - config.destinations[b].uid);
+
+    return sourcesKeys.map((sourceKey, index) => {
       const source = config.sources[sourceKey];
       const schedule = 'trigger' in source ? source.trigger.schedule : null;
       const interval = Settings.intervalFromCron(schedule);
@@ -203,7 +233,7 @@ export default class Settings extends React.Component {
 
       let destination;
       let destinationTypeLabel;
-      let destinationConfig = {};
+      let destinationConfig = this.destinationTypes[0].defaults.s3;
       if (source.destination in config.destinations) {
         // TODO: this can't assume 's3' in the future, build a more robust solution
         destination = config.destinations[source.destination];
@@ -212,7 +242,7 @@ export default class Settings extends React.Component {
       }
 
       return (
-        <Card key={sourceKey} style={{ marginBottom: '16px' }}>
+        <Card key={`source-${source.uid}`} style={{ marginBottom: '16px' }}>
           <CardHeader
             actAsExpander
             showExpandableButton
@@ -220,13 +250,23 @@ export default class Settings extends React.Component {
           />
 
           <CardText expandable style={{ padding: '0 32px 16px' }}>
+            <TextField
+              floatingLabelText="Name"
+              value={sourceKey}
+              onChange={(e) => {
+                config.sources[e.target.value] = Object.assign({}, source);
+                delete config.sources[sourceKey];
+                this.alterSettings();
+              }}
+            /><br />
+
             <NumberInput
               floatingLabelText="Interval (minutes)"
               min={0}
               onChange={(e) => {
                 if (schedule) {
                   source.trigger.schedule = Settings.cronFromInterval(e.target.value);
-                  this.saveSettings();
+                  this.alterSettings();
                 }
               }}
               required
@@ -239,7 +279,7 @@ export default class Settings extends React.Component {
                 label="Enabled"
                 onToggle={(e, isInputChecked) => {
                   source.enabled = isInputChecked;
-                  this.saveSettings();
+                  this.alterSettings();
                 }}
                 toggled={source.enabled}
               />
@@ -262,7 +302,7 @@ export default class Settings extends React.Component {
                   );
                   delete source[`_${value}`];
 
-                  this.saveSettings();
+                  this.alterSettings();
                 }}
                 value={sourceType}
               >
@@ -280,15 +320,22 @@ export default class Settings extends React.Component {
                 onChange={(e, index, value) => {
                   if (!(source.destination in config.destinations)) {
                     // TODO; think through how we want to handle destination creation
-                    const newDestinationName = 'newDestination';
-                    config.destinations[newDestinationName] = Object.assign({},
+                    let newDestinationKey = 'destination';
+                    let i = 1;
+                    while (sourcesKeys.indexOf(newDestinationKey + i) !== -1) {
+                      i += 1;
+                    }
+                    newDestinationKey = newDestinationKey + i;
+
+                    config.destinations[newDestinationKey] = Object.assign({},
                       this.destinationTypes[0].defaults,
+                      { uid: Math.random() }
                     );
-                    source.destination = newDestinationName;
+                    source.destination = newDestinationKey;
                   } else {
                     source.destination = value;
                   }
-                  this.saveSettings();
+                  this.alterSettings();
                 }}
                 value={source.destination}
               >
@@ -309,7 +356,7 @@ export default class Settings extends React.Component {
                   value={destinationConfig.folder}
                   onChange={(e) => {
                     destinationConfig.folder = e.target.value;
-                    this.saveSettings();
+                    this.alterSettings();
                   }}
                 /><br />
 
@@ -318,7 +365,7 @@ export default class Settings extends React.Component {
                   value={destinationConfig.accessKeyId}
                   onChange={(e) => {
                     destinationConfig.accessKeyId = e.target.value;
-                    this.saveSettings();
+                    this.alterSettings();
                   }}
                 /><br />
 
@@ -327,7 +374,7 @@ export default class Settings extends React.Component {
                   value={destinationConfig.secretAccessKey}
                   onChange={(e) => {
                     destinationConfig.secretAccessKey = e.target.value;
-                    this.saveSettings();
+                    this.alterSettings();
                   }}
                 /><br />
               </div>
@@ -340,14 +387,21 @@ export default class Settings extends React.Component {
 
   render() {
     const { config } = this.state;
+    const sourcesKeys = Object.keys(config.sources);
 
     return (
       <div style={{ margin: 'auto', maxWidth: '600px', padding: '16px 32px 32px' }}>
+        <Snackbar
+          open={this.state.saved}
+          message="Settings Saved!"
+          autoHideDuration={3000}
+          onRequestClose={this.handleNotificationClose}
+        />
         <TextField
           floatingLabelText="Department ID"
           onChange={(e) => {
             config.departmentId = e.target.value;
-            this.saveSettings();
+            this.alterSettings();
           }}
           value={config.departmentId}
         />
@@ -362,15 +416,24 @@ export default class Settings extends React.Component {
           <FlatButton
             label="Add"
             onClick={() => {
+              // generate a new name
+              let newSourceKey = 'newSource';
+              let i = 1;
+              while (sourcesKeys.indexOf(newSourceKey + i) !== -1) {
+                i += 1;
+              }
+              newSourceKey = newSourceKey + i;
+
               // TODO: this should be a deep clone (along with ALL similar
               // patterns using sourceTypes/destinationTypes in this file)
-              config.sources.newSource = Object.assign({}, {
+              config.sources[newSourceKey] = Object.assign({}, {
                 enabled: false,
                 // TODO: this next line would crash if no destinations
                 destination: Object.keys(config.destinations)[0],
                 [this.sourceTypes[0].key]: this.sourceTypes[0].defaults,
+                uid: Math.random(),
               });
-              this.saveSettings();
+              this.alterSettings();
             }}
             primary
           />
