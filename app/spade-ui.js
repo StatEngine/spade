@@ -27,6 +27,7 @@ export default function init() {
       if (mainWindow.isMinimized()) {
         mainWindow.restore();
       }
+      mainWindow.show();
       mainWindow.focus();
     }
   });
