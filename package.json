@@ -48,7 +48,9 @@
       "service/"
     ],
     "asar": false,
-    "include": "build/custom_uninstaller.nsh",
+    "nsis": {
+      "include": "build/custom_uninstaller.nsh"
+    },
     "dmg": {
       "contents": [
         {
