@@ -218,6 +218,6 @@ class TrayControl {
 }
 
 
-// export singlton instance
+// export singleton instance
 const trayControl = new TrayControl();
 export default trayControl;

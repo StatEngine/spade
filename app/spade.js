@@ -213,6 +213,6 @@ export class Spade {
   }
 }
 
-// export singlton instance
+// export singleton instance
 const spade = new Spade();
 export default spade;
