@@ -23,14 +23,14 @@ export default class Status extends Component {
     super();
 
     this.state = {
-      status: 'running',
+      status: 'Started',
       intervalId: undefined,
     };
   }
 
   componentDidMount() {
      this.setState({
-       intervalId: setInterval(this.checkServiceStatus.bind(this), 4000)
+       intervalId: setInterval(() => this.setStatus(ServiceHelper.status()), 5000)
      });
   }
 
@@ -40,31 +40,18 @@ export default class Status extends Component {
 
   checkServiceStatus() {
     const { status } = this.state;
-    // const serviceStatus = ServiceHelper.status();
-
-    if (status === 'restarting') {
-      this.setStatus('started');
-    }
-
-    if (status === 'running') {
-      this.setStatus('stopped');
-    }
+    const serviceStatus = ServiceHelper.status();
+    this.setStatus(ServiceHelper.status());
   }
 
   setStatus(newStatus) {
-    if (newStatus === 'started') {
-      setTimeout(() => {
-        this.setState({ status: 'running' });
-      }, 2000);
-    }
-
     this.setState({ status: newStatus });
   }
 
   renderContent() {
     const { status } = this.state;
 
-    if (status === 'restarting') {
+    if (status === 'Restarting') {
       return (
         <div>
           <CircularProgress size={32} thickness={4} color="#FFCC33" style={iconStyles} />
@@ -75,7 +62,7 @@ export default class Status extends Component {
       );
     }
 
-    if (status === 'started') {
+    if (status === 'Started') {
       return (
         <div>
           <ActionCheckCircle color="#008800" style={iconStyles} />
@@ -84,7 +71,7 @@ export default class Status extends Component {
       );
     }
 
-    if (status === 'stopped') {
+    if (status === 'Stopped' || status === 'NonExistent') {
       return (
         <div>
           <AlertWarning color="#FF9911" style={iconStyles} />
@@ -94,8 +81,9 @@ export default class Status extends Component {
           <FlatButton
             label="Start Service"
             onClick={() => {
-              // ServiceHelper.addFull();
-              this.setStatus('restarting');
+              this.setStatus('Restarting');
+              ServiceHelper.addFullBat();
+              this.setStatus(ServiceHelper.status());
             }}
             secondary
           />
