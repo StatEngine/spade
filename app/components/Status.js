@@ -21,14 +21,16 @@ const iconStyles = {
 
 export default class Status extends Component {
   props: {
-    lastSettingsUpdate: undefined,
+    lastSettingsUpdate: 0,
   }
 
   constructor(props) {
     super(props);
 
+    const status = ServiceHelper.status();
+
     this.state = {
-      status: ServiceHelper.status(),
+      status: status === 'Started' ? 'Running' : 'Started',
       intervalId: undefined,
       lastServiceRestart: Date.now(),
     };
@@ -36,7 +38,7 @@ export default class Status extends Component {
 
   componentDidMount() {
     this.setState({
-      intervalId: setInterval(() => this.setState({ status: ServiceHelper.status() }), 5000)
+      intervalId: setInterval(() => this.setStatus(ServiceHelper.status()), 5000)
     });
   }
 
@@ -44,10 +46,32 @@ export default class Status extends Component {
     clearInterval(this.state.intervalId);
   }
 
-  checkServiceStatus() {
+  setStatus(newStatus) {
+    const { status } = this.state;
+    let { lastServiceRestart } = this.state;
+
+    // If we're already running, ignore the state change.
+    if (newStatus === 'Started' && status === 'Running') {
+      return;
+    }
+
+    // Change our status to 'Running' soon after we start.
+    if (newStatus === 'Started') {
+      setTimeout(() => this.setState({ status: 'Running' }), 3000);
+    }
+
+    if (newStatus === 'Restarting') {
+      lastServiceRestart = Date.now();
+    }
+
     this.setState({
-      status: ServiceHelper.status(),
+      status: newStatus,
+      lastServiceRestart,
     });
+  }
+
+  checkServiceStatus() {
+    this.setStatus(ServiceHelper.status());
   }
 
   renderContent() {
@@ -79,15 +103,12 @@ export default class Status extends Component {
           <FlatButton
             label={settingsChanged ? 'Restart Now' : 'Start Service'}
             onClick={() => {
-              this.setState({ status: 'Restarting' });
+              this.setStatus('Restarting');
               // I would prefer process.nextTick(), however, this allows
               // time for the UI to render once more... usually
               setTimeout(() => {
                 ServiceHelper.addFullBat();
-                this.setState({
-                  status: ServiceHelper.status(),
-                  lastServiceRestart: Date.now(),
-                });
+                this.setStatus(ServiceHelper.status());
               }, 10);
             }}
             secondary
@@ -110,9 +131,10 @@ export default class Status extends Component {
 
   render() {
     const { status } = this.state;
-    console.log('asdf');
+    const settingsChanged = this.props.lastSettingsUpdate > this.state.lastServiceRestart;
+
     return (
-      <div className={`${styles.container} ${status !== 'Running' ? styles.visible : ''}`}>
+      <div className={`${styles.container} ${settingsChanged || status !== 'Running' ? styles.visible : ''}`}>
         {this.renderContent()}
       </div>
     );

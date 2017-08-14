@@ -1,10 +1,18 @@
 import path from 'path';
 import runas from 'runas';
 import childProcess from 'child_process';
+import { remote } from 'electron';
 
 export default class ServiceHelper {
+  static get dirname() {
+    if (process.env.NODE_ENV === 'production') {
+      return path.join(remote.app.getAppPath(), 'service');
+    }
+    return path.join(__dirname, 'service');
+  }
+
   static get EXE() {
-    return path.join(__dirname, 'service', 'spade-service.exe');
+    return path.join(ServiceHelper.dirname, 'spade-service.exe');
   }
 
   static get OPS() {
@@ -121,14 +129,14 @@ export default class ServiceHelper {
   }
 
   static addFullBat() {
-    const exe = path.join(__dirname, 'service', 'service-install-full.bat');
+    const exe = path.join(ServiceHelper.dirname, 'service-install-full.bat');
     let output1 = null;
     output1 = runas(exe, [], ServiceHelper.OPS);
     console.log('----[ addFullBat: ', output1);
   }
 
   static removeFullBat() {
-    const exe = path.join(__dirname, 'service', 'service-uninstall-full.bat');
+    const exe = path.join(ServiceHelper.dirname, 'service-uninstall-full.bat');
     let output1 = null;
     output1 = runas(exe, [], ServiceHelper.OPT);
     console.log('----[ removeFullBat: ', output1);
