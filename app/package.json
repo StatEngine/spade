@@ -10,7 +10,7 @@
     "url": "https://github.com/chentsulin"
   },
   "scripts": {
-    "postinstall": "../node_modules/.bin/electron-rebuild --module-dir ../app"
+    "postinstall": "node_modules/.bin/electron-rebuild"
   },
   "license": "GPL-3.0",
   "dependencies": {
@@ -22,5 +22,8 @@
   },
   "optionalDependencies": {
     "fsevents": "1.1.2"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^1.6.0"
   }
 }
