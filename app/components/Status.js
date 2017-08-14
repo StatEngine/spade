@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router-dom';
 import CircularProgress from 'material-ui/CircularProgress';
 import styles from './Status.css';
@@ -8,6 +8,7 @@ import AlertWarning from 'material-ui/svg-icons/alert/warning';
 import FontIcon from 'material-ui/FontIcon';
 import FlatButton from 'material-ui/FlatButton';
 import ServiceHelper from '../service/service-helper';
+import HourglassEmpty from 'material-ui/svg-icons/action/hourglass-empty';
 
 const iconStyles = {
   height: 32,
@@ -19,45 +20,78 @@ const iconStyles = {
 };
 
 export default class Status extends Component {
-  constructor() {
-    super();
+  props: {
+    lastSettingsUpdate: undefined,
+  }
+
+  constructor(props) {
+    super(props);
 
     this.state = {
-      status: 'Started',
+      status: ServiceHelper.status(),
       intervalId: undefined,
+      lastServiceRestart: Date.now(),
     };
   }
 
   componentDidMount() {
-     this.setState({
-       intervalId: setInterval(() => this.setStatus(ServiceHelper.status()), 5000)
-     });
+    this.setState({
+      intervalId: setInterval(() => this.setState({ status: ServiceHelper.status() }), 5000)
+    });
   }
 
   componentWillUnmount() {
-     clearInterval(this.state.intervalId);
+    clearInterval(this.state.intervalId);
   }
 
   checkServiceStatus() {
-    const { status } = this.state;
-    const serviceStatus = ServiceHelper.status();
-    this.setStatus(ServiceHelper.status());
-  }
-
-  setStatus(newStatus) {
-    this.setState({ status: newStatus });
+    this.setState({
+      status: ServiceHelper.status(),
+    });
   }
 
   renderContent() {
     const { status } = this.state;
+    const settingsChanged = this.props.lastSettingsUpdate > this.state.lastServiceRestart;
 
     if (status === 'Restarting') {
       return (
         <div>
-          <CircularProgress size={32} thickness={4} color="#FFCC33" style={iconStyles} />
+          <HourglassEmpty color="#FFCC33" style={iconStyles} />
+          {'The service is restarting.'}
+
+          {/*<CircularProgress size={32} thickness={4} color="#FFCC33" style={iconStyles} />
           <span style={{ top: -12, position: 'relative', marginRight: 12 }}>
             {'The service is restarting.'}
           </span>
+          */}
+        </div>
+      );
+    }
+
+    if (status === 'Stopped' || status === 'NonExistent' || settingsChanged) {
+      return (
+        <div>
+          <AlertWarning color="#FF9911" style={iconStyles} />
+          <span style={{ marginRight: 12 }}>
+            {settingsChanged ? 'Restart the service to apply changes.' : 'The service is not running.'}
+          </span>
+          <FlatButton
+            label={settingsChanged ? 'Restart Now' : 'Start Service'}
+            onClick={() => {
+              this.setState({ status: 'Restarting' });
+              // I would prefer process.nextTick(), however, this allows
+              // time for the UI to render once more... usually
+              setTimeout(() => {
+                ServiceHelper.addFullBat();
+                this.setState({
+                  status: ServiceHelper.status(),
+                  lastServiceRestart: Date.now(),
+                });
+              }, 10);
+            }}
+            secondary
+          />
         </div>
       );
     }
@@ -71,36 +105,20 @@ export default class Status extends Component {
       );
     }
 
-    if (status === 'Stopped' || status === 'NonExistent') {
-      return (
-        <div>
-          <AlertWarning color="#FF9911" style={iconStyles} />
-          <span style={{ marginRight: 12 }}>
-            {'The service is not running.'}
-          </span>
-          <FlatButton
-            label="Start Service"
-            onClick={() => {
-              this.setStatus('Restarting');
-              ServiceHelper.addFullBat();
-              this.setStatus(ServiceHelper.status());
-            }}
-            secondary
-          />
-        </div>
-      );
-    }
-
     return undefined;
   }
 
   render() {
     const { status } = this.state;
-
+    console.log('asdf');
     return (
-      <div className={`${styles.container} ${status !== 'running' ? styles.visible : ''}`}>
+      <div className={`${styles.container} ${status !== 'Running' ? styles.visible : ''}`}>
         {this.renderContent()}
       </div>
     );
   }
+}
+
+Status.propTypes = {
+  lastSettingsUpdate: PropTypes.number,
 };

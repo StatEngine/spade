@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import { remote } from 'electron';
 import { NumberInput } from 'material-ui-number-input';
 import {
@@ -17,7 +17,7 @@ import {
 } from 'material-ui';
 import FileInput from './FileInput';
 
-export default class Settings extends React.Component {
+export default class Settings extends Component {
   static configPath() {
     if (process.env.NODE_ENV === 'production') {
       return path.join(remote.app.getAppPath(), 'actions.json');
@@ -88,10 +88,10 @@ export default class Settings extends React.Component {
     const config = Settings.loadConfig();
 
     Object.keys(config.sources).sort()
-      .forEach((key, index) => config.sources[key].uid = index + 500);
+      .forEach((key, index) => { config.sources[key].uid = index + 500; });
 
     Object.keys(config.destinations).sort()
-      .forEach((key, index) => config.destinations[key].uid = index + 500);
+      .forEach((key, index) => { config.destinations[key].uid = index + 500; });
 
     this.setState({
       config,
@@ -111,6 +111,8 @@ export default class Settings extends React.Component {
       saved: true,
     });
     Settings.saveConfig(config);
+
+    this.props.onUpdate(true);
     // TODO: run batch file to restart service
 
     console.log('this.data: ', this.state);
@@ -444,3 +446,7 @@ export default class Settings extends React.Component {
     );
   }
 }
+
+Settings.propTypes = {
+  onUpdate: PropTypes.func.isRequired,
+};
