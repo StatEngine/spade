@@ -1,4 +1,5 @@
 import querystring from 'querystring';
+import request from 'request';
 import spade from './spade';
 
 export default class Reporter {
@@ -19,15 +20,14 @@ export default class Reporter {
 
   static send(params) {
     console.log('----[ send: ', params);
-    if (typeof (navigator) === 'undefined' || !navigator.onLine) {
-      return;
-    }
+
     Object.assign(params, {
       v: 1,
       aip: 1,
       tid: 'UA-101004422-2',
       cid: spade.getDepartmentId(),
       an: 'spade',
+      aid: spade.getCommitID(),
       av: spade.getVersion(),
     });
 
@@ -35,16 +35,18 @@ export default class Reporter {
       Object.assign(params, Reporter.consentedParams());
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `https://ssl.google-analytics.com/collect?${querystring.stringify(params)}`);
-    xhr.send(null);
+    request.post(`https://ssl.google-analytics.com/collect?${querystring.stringify(params)}`, (err) => {
+      if (err) {
+        console.log('Could not post to ga: ', err);
+      }
+    });
   }
 
-  static sendEvent(label, value) {
+  static sendEvent(category, action, label, value) {
     const params = {
       t: 'event',
-      ec: spade.getDepartmentId(),
-      ea: spade.getVersion(),
+      ec: category,
+      ea: action,
     };
 
     if (label) { params.el = label; }
@@ -78,8 +80,6 @@ export default class Reporter {
       cd3: process.arch,
       cm1: memUse.heapUsed >> 20, // eslint-disable-line no-bitwise, bytes to mb
       cm2: Math.round((memUse.heapUsed / memUse.heapTotal) * 100),
-      sr: `${screen.width}x${screen.height}`,
-      vp: `${innerWidth}x${innerHeight}`,
       aiid: Reporter.getReleaseChannel(),
     };
   }

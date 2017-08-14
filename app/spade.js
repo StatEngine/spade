@@ -16,10 +16,10 @@ export class Spade {
     this.heartbeat = null;
 
     // TODO: load from settings
-    this.userConcent = true;
+    this.userConsent = true;
     this.departmentId = 12345;
     this.gitState = gitState;
-    this.version = `${appPackage.version}:${gitState.commit}`;
+    this.version = `${appPackage.version}`;
   }
 
   loadConfig(configFilename) {
@@ -38,8 +38,8 @@ export class Spade {
     return this.config;
   }
 
-  getHasUserConseant() {
-    return this.userConcent;
+  getHasUserConsent() {
+    return this.userConsent;
   }
 
   getDepartmentId() {
@@ -48,6 +48,10 @@ export class Spade {
 
   getVersion() {
     return this.version;
+  }
+
+  getCommitID() {
+    return this.gitState.commit;
   }
 
   // load config, create all actions
@@ -64,7 +68,6 @@ export class Spade {
     }
 
     this.startReporterHeartbeat();
-    Reporter.sendEvent('spade.init.begin');
     console.log('Spade Version: ', this.getVersion());
 
     this.sources = {};
@@ -121,12 +124,11 @@ export class Spade {
         Reporter.sendException('Unable to init source action');
       }
     }
-    Reporter.sendEvent('spade.init.end');
+    Reporter.sendEvent('spade', 'init', 'core.service');
   }
 
   // stop all tasks
   finalize() {
-    Reporter.sendEvent('spade.finalize.begin');
     const createdSourcesKeys = Object.keys(this.sources);
     for (let i = 0; i < createdSourcesKeys.length; i += 1) {
       const key = createdSourcesKeys[i];
@@ -153,9 +155,9 @@ export class Spade {
       }
     }
 
-    Reporter.sendTiming('spade.window', 'sessionDuration', Date.now() - this.sessionStart);
     this.stopReporterHeartbeat();
-    Reporter.sendEvent('spade.finalize.end');
+    Reporter.sendTiming('core.service', 'sessionDuration', Date.now() - this.spadeCreateTime);
+    Reporter.sendEvent('spade', 'finalize', 'core.service');
   }
 
   static createDestinationAction(conf) {
@@ -165,6 +167,8 @@ export class Spade {
       if (conf.s3) {
         action = new DestinationS3Action(conf);
       }
+
+      Reporter.sendEvent('spade', 'createDestinationAction', 'core.service');
     } catch (e) {
       const destinationCreateErr = `Unable to create destination action: ${e}`;
       action = null;
@@ -186,6 +190,7 @@ export class Spade {
         } else {
           console.log('====[ Source action Type not supported: ', conf);
         }
+        Reporter.sendEvent('spade', 'createDestinationAction', 'core.service');
       } catch (e) {
         sourceAction = null;
       }
@@ -200,7 +205,7 @@ export class Spade {
     if (this.config.reporter && this.config.reporter.trigger &&
     this.config.reporter.trigger.schedule) {
       this.heartbeat = schedule.scheduleJob(this.config.reporter.trigger.schedule, () => {
-        Reporter.sendEvent('spade.heartbeat.ping');
+        Reporter.sendEvent('spade', 'heartbeat', 'core.service');
       });
     }
   }

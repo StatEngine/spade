@@ -46,7 +46,7 @@ export default class DestinationS3Action extends DestinationAction {
         console.log('S3 Bucket Valid and accessible', data);
       }
     });*/
-    Reporter.sendEvent('destinationS3Action.init.success');
+    Reporter.sendEvent('DestinationS3Action', 'init', 'core.actions');
   }
 
   run(name, payload) {
@@ -80,6 +80,7 @@ export default class DestinationS3Action extends DestinationAction {
           reject(s3Err);
         } else {
           console.log('File Uploaded to s3: ', s3Data);
+          Reporter.sendEvent('DestinationS3Action', 'upload', 'core.actions');
           resolve(keyName);
         }
       });
@@ -88,7 +89,7 @@ export default class DestinationS3Action extends DestinationAction {
 
   finalize() {
     console.log('S3Destination.finalize: ', this.config);
-    Reporter.sendEvent('destinationS3Action.shutdown.success');
+    Reporter.sendEvent('DestinationS3Action', 'finalize', 'core.actions');
     this.setStatus('SHUTDOWN');
   }
 }

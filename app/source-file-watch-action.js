@@ -18,7 +18,7 @@ export default class SourceFileWatchAction extends SourceAction {
     // Note: no need to call super.init() as this.startSchedule(); since we dont
     // have to poll the source and instead watch triggers based on file events
     this.stream = this.watch(this.config.fileWatch.folder);
-    Reporter.sendEvent('sourceFileWatchAction.init.success');
+    Reporter.sendEvent('SourceFileWatchAction', 'init', 'core.actions');
   }
 
   finalize() {
@@ -26,6 +26,7 @@ export default class SourceFileWatchAction extends SourceAction {
       this.stream.close();
       this.stream = null;
     }
+    Reporter.sendEvent('SourceFileWatchAction', 'finalize', 'core.actions');
     console.log('FileWatch.finalize: ', this.config);
   }
 
@@ -58,6 +59,7 @@ export default class SourceFileWatchAction extends SourceAction {
         const destFile = path.join(moveFolder, path.sep, basename);
         console.log('Event: ', event, 'mv source: ', sourceFile,
         'mv dest: ', destFile);
+        Reporter.sendEvent('SourceFileWatchAction', 'watchEvent', 'core.actions');
 
         // send sourceFile to s3. If it failes to upload, do not proceed
         this.destination.run(sourceFile).then(() => {

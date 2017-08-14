@@ -202,7 +202,6 @@
     "electron-debug": "^1.2.0",
     "electron-settings": "^3.1.1",
     "font-awesome": "^4.7.0",
-    "git-rev-sync": "^1.9.1",
     "gulp": "^3.9.1",
     "history": "^4.6.3",
     "material-ui": "^0.18.3",
@@ -222,6 +221,7 @@
     "react-tap-event-plugin": "^2.0.1",
     "redux": "^3.7.1",
     "redux-thunk": "^2.2.0",
+    "request": "^2.81.0",
     "source-map-support": "^0.4.15",
     "sql": "^0.76.1"
   },
