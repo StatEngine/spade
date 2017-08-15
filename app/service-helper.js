@@ -1,13 +1,13 @@
 import path from 'path';
 import runas from 'runas';
 import childProcess from 'child_process';
-import { remote } from 'electron';
 
 export default class ServiceHelper {
   static get dirname() {
-    if (process.env.NODE_ENV === 'production') {
-      return path.join(remote.app.getAppPath(), 'service');
-    }
+    // this works for installed and (mostly) production mode which are the main
+    // ones we care about. Note that ServiceHelper should only be used in
+    // installed mode untill we make it so that in dev/production, it uses
+    // Spade singleton directly instead of install as windows service.
     return path.join(__dirname, 'service');
   }
 
@@ -21,6 +21,18 @@ export default class ServiceHelper {
       admin: true,
       catchOutput: true,
     };
+  }
+
+  static appMode() {
+    let mode = '';
+    if (process.argv[0] && process.argv[0].toLowerCase().endsWith('spade.exe')) {
+      mode = 'installed';
+    } else if (process.env.NODE_ENV === 'production') {
+      mode = 'production';
+    } else if (process.env.NODE_ENV === 'development') {
+      mode = 'development';
+    }
+    return mode;
   }
 
   static execute(args) {
@@ -71,11 +83,17 @@ export default class ServiceHelper {
   }
 
   // valid states: Started, Stopped, NonExistent
+  // Invalid if something is wrong
   static status() {
-    let out = childProcess.execSync(`${ServiceHelper.EXE} status`);
-    out = out.toString('utf8').trim();
-    console.log(`----[ getStatus: ${out}\n`);
-    return out;
+    let status = null;
+    try {
+      status = childProcess.execSync(`${ServiceHelper.EXE} status`);
+      status = status.toString('utf8').trim();
+    } catch (e) {
+      status = 'Invalid'
+    }
+    console.log(`----[ status: ${status}\n`);
+    return status;
   }
 
   // Note: running with runas doesn't return the response of status.

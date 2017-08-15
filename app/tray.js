@@ -1,6 +1,6 @@
 import { app, Tray, Menu, dialog } from 'electron';
 import path from 'path';
-import serviceHelper from './service/service-helper';
+import serviceHelper from './service-helper';
 
 class TrayControl {
   init(mainWindow) {
@@ -68,6 +68,17 @@ class TrayControl {
         label: 'Quit',
         click() {
           app.quit();
+        },
+      },
+      {
+        label: 'AppMode',
+        click() {
+          const val = serviceHelper.appMode();
+          dialog.showMessageBox({
+            title: 'tray',
+            message: val ? val : '< none >',
+          });
+          console.log('----[ appMode: ', val);
         },
       },
       {

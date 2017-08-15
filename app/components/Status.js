@@ -7,7 +7,7 @@ import ActionCheckCircle from 'material-ui/svg-icons/action/check-circle';
 import AlertWarning from 'material-ui/svg-icons/alert/warning';
 import FontIcon from 'material-ui/FontIcon';
 import FlatButton from 'material-ui/FlatButton';
-import ServiceHelper from '../service/service-helper';
+import ServiceHelper from '../service-helper';
 import HourglassEmpty from 'material-ui/svg-icons/action/hourglass-empty';
 
 const iconStyles = {
