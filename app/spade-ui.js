@@ -66,6 +66,52 @@ export default function init() {
       .catch(console.log);
   };
 
+  // TODO: this wont be availabe to render thread
+  let modeInstalled = false;
+  let modeDevelopment = false;
+  let modeProduction = false;
+  let modeCounter = 0;
+  let mode = null;
+
+  if (process.env.NODE_ENV === 'development') {
+    mode = 'development';
+    modeDevelopment = true;
+    modeCounter += 1;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    mode = 'production';
+    modeProduction = true;
+    modeCounter += 1;
+  }
+
+  if (process.argv[0] && process.argv[0].toLowerCase().endsWith('spade.exe')) {
+    mode = 'installed';
+    modeInstalled = true;
+    modeCounter += 1;
+  }
+
+  let appPath = null;
+  const dirname = __dirname;
+
+  if (app && app.getAppPath && app.getAppPath()) {
+    appPath = app.getAppPath();
+  }
+
+  console.log('~~~~[ Application Info: ');
+  console.log('        mode: ', mode);
+  console.log('        modeDevelopment: ', modeDevelopment);
+  console.log('        modeProduction: ', modeProduction);
+  console.log('        modeInstalled: ', modeInstalled);
+  console.log('        __dirname: ', dirname);
+  console.log('        app.getAppPath: ', appPath);
+
+  if (modeCounter !== 1 &&
+    // when in installed mode, production flag is also true, which is okay
+     !(modeCounter === 2 && modeProduction && modeInstalled)) {
+    throw Error(`Application mode error! mode count: ${modeCounter}`);
+  }
+
   const createWindow = async () => {
     if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
       await installExtensions();

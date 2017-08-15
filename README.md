@@ -48,3 +48,13 @@ Note that the path to a file is different when in the `dev` (`npm run dev`) and 
 when developingon windows, do not use the cmd shell. Use a bash shell (for example the shell that comes with git) so that a new shell is not launched to run the `.sh` files and then immediatly closed. Because if you are not in a bash shell, and there is an error, you wont see it.
 
 ## tests
+
+# Troubleshooting
+- When in `production` mode or `installed` mode, setting `DEBUG_PROD` env var to 'true' will open dev console. You search for 'env' on the start manu to open the appropriate window to set the variable. 
+- If clicking spade does not do anything:
+  - click the quit option on any spade tray icon's context/riht-click menu
+  - make sure in task manage you do not have any Spade process running
+  - make sure in task manager you do not see any node.exe running
+  - try relaunching from shortcut
+- When you close the Spade main window, it is still running. If you try to launch the app again, it will just show the main window of the running app. ou have to use the Quit option from the tray icon to exit.
+- Virus scanner might consider the spade-service.exe as mallicious. Its existance or execution is not a concern unless in the very unlikely when it has been infected while on your network and the virus scanner has specifically found it to contain a particular virus.
