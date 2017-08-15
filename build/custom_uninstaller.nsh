@@ -8,7 +8,7 @@
 
 !macro customInit
   # incase we are installing and service is already running from previous install
-  nsExec::Exec '"$INSTDIR\resources\app\service\service-uninstall-full.bat"'
+  nsExec::Exec '"$INSTDIR\resources\app\service\elevate.exe" -wait "$INSTDIR\resources\app\service\service-uninstall-full.bat"'
   # MessageBox MB_OK "customInit, done uninstall"
 !macroend
 
@@ -18,7 +18,7 @@
 
 !macro customUnInit
   # incase we are uninstalling and service is running
-  nsExec::Exec '"$INSTDIR\resources\app\service\service-uninstall-full.bat"'
+  nsExec::Exec '"$INSTDIR\resources\app\service\elevate.exe" -wait "$INSTDIR\resources\app\service\service-uninstall-full.bat"'
   # MessageBox MB_OK "customUnInit"
 !macroend
 

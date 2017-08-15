@@ -50,7 +50,7 @@ when developingon windows, do not use the cmd shell. Use a bash shell (for examp
 ## tests
 
 # Troubleshooting
-- When in `production` mode or `installed` mode, setting `DEBUG_PROD` env var to 'true' will open dev console. You search for 'env' on the start manu to open the appropriate window to set the variable. 
+- When in `production` mode or `installed` mode, setting `DEBUG_PROD` env var to 'true' (in quotes) and restarting the bash shell you have open. You can search for 'env' on the start manu to open the appropriate window to set the variable.
 - If clicking spade does not do anything:
   - click the quit option on any spade tray icon's context/riht-click menu
   - make sure in task manage you do not have any Spade process running
