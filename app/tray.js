@@ -1,6 +1,7 @@
 import { app, Tray, Menu, dialog } from 'electron';
 import path from 'path';
 import serviceHelper from './service-helper';
+import gitState from './git-state.json';
 
 class TrayControl {
   init(mainWindow) {
@@ -23,13 +24,15 @@ class TrayControl {
 
     this.iconTray = path.join(__dirname, 'images',
       this.icons[process.platform].dir, this.icons[process.platform].icon ||
-      'icon-tray.png');
+      'tray-on.ico');
 
     this.iconTrayAlert = path.join(__dirname, 'images',
       this.icons[process.platform].dir, this.icons[process.platform].iconAlert ||
-      'icon-tray-alert.png');
+      'tray-off.ico');
 
     console.log('----[ this.iconTray: ', this.iconTray);
+
+    this.showServiceCommands = serviceHelper.appMode() === 'installed';
 
     this.createAppTray();
   }
@@ -41,6 +44,16 @@ class TrayControl {
       console.log('====[ mainWindow.tray already has a tray?');
     }
     this.mainWindow.tray = tray;
+
+    setInterval(() => {
+      const status = serviceHelper.status();
+      if (status !== this.lastStatus) {
+        const icon = status !== 'Started' ? this.iconTrayAlert : this.iconTray;
+        this.mainWindow.tray.setImage(icon);
+        this.lastStatus = status;
+      }
+    }, 5000);
+
     const self = this;
     const contextMenuShow = Menu.buildFromTemplate([
       {
@@ -83,6 +96,7 @@ class TrayControl {
       },
       {
         label: 'ServiceStatus',
+        visible: this.showServiceCommands,
         click() {
           const status = serviceHelper.status();
           dialog.showMessageBox({
@@ -94,6 +108,7 @@ class TrayControl {
       },
       {
         label: 'ServiceStatusOld',
+        visible: this.showServiceCommands,
         click() {
           const status = serviceHelper.statusOld();
           dialog.showMessageBox({
@@ -105,50 +120,67 @@ class TrayControl {
       },
       {
         label: 'ServiceAdd',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.add();
         },
       },
       {
         label: 'ServiceRemove',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.remove();
         },
       },
       {
         label: 'ServiceStart',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.start();
         },
       },
       {
         label: 'ServiceStop',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.stop();
         },
       },
       {
         label: 'ServiceAddFull',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.addFull();
         },
       },
       {
         label: 'ServiceAddFullBat',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.addFullBat();
         },
       },
       {
         label: 'ServiceRemoveFull',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.removeFull();
         },
       },
       {
         label: 'ServiceRemoveFullBat',
+        visible: this.showServiceCommands,
         click() {
           serviceHelper.removeFullBat();
+        },
+      },
+      {
+        label: 'About',
+        click() {
+          dialog.showMessageBox({
+            title: 'About',
+            message: `branch: ${gitState.branch}\r\ncommited: ${gitState.commitDate}\r\nSHA: ${gitState.commit}`,
+          });
         },
       },
     ]);
@@ -191,7 +223,7 @@ class TrayControl {
     // works in no "exe": path.join(__dirname, '..', 'app', 'images', ...
     // did not work with "exe" path.join('images', ...
     // path.join(__dirname, 'images',  worked with exe, npm run dev, and npm start
-    const iconPath = path.join(__dirname, 'images', this.icons[process.platform].dir, 'icon-tray.png');
+    const iconPath = path.join(__dirname, 'images', this.icons[process.platform].dir, 'tray-on.ico');
     this.mainWindow.tray.setImage(iconPath);
   }
 

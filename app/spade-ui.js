@@ -11,6 +11,7 @@
  * @flow
  */
 import { app, BrowserWindow } from 'electron';
+import path from 'path';
 import MenuBuilder from './menu';
 import reporter from './reporter';
 import tray from './tray';
@@ -121,6 +122,7 @@ export default function init() {
       show: false,
       width: 1024,
       height: 728,
+      icon: path.join(__dirname, 'images/windows/stat-engine.ico')
     });
 
     mainWindow.loadURL(`file://${__dirname}/app.html`);
