@@ -29,6 +29,7 @@ export class Spade {
     // diabling linter error.
     try {
       // Read in the configuration json file. This may be from s3 or http endpoint
+      console.log('----[ spade.loadConfig, configFilename: ', configFilename);
       this.config = JSON.parse(fs.readFileSync(configFilename));
       this.departmentId = this.config.departmentId;
     } catch (e) {

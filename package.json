@@ -49,6 +49,9 @@
     ],
     "asar": false,
     "nsis": {
+      "perMachine": true,
+      "runAfterFinish": false,
+      "deleteAppDataOnUninstall": true,
       "include": "build/custom_uninstaller.nsh"
     },
     "dmg": {

@@ -27,6 +27,7 @@ export default class Settings extends Component {
 
   static loadConfig() {
     const configPath = Settings.configPath();
+    console.log('----[ Settings.loadConfig, configPath: ', configPath);
     let result = { sources: {}, destinations: {} };
     try {
       result = Object.assign(result, JSON.parse(fs.readFileSync(configPath)));

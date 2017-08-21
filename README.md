@@ -36,7 +36,7 @@ clean-package.sh
 ```
 
 ## development environment
-You should read the entire readme of this [boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
+You should read the entire readme of this [boilerplate](https://github.com/chentsulin/electron-react-boilerplate/tree/v0.12.0) at (1 commit after) the v0.12.0 tag.
 install the Atom packages form their readme.
 Additional recommendation:
  - enable autosave in Atom settigns which will save the files as soon as the pane loses focus.

@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "----[ cleaning yarn & npm cache"
 yarn cache clean
+yarn clean
 npm cache clean
 
 # exit on error
