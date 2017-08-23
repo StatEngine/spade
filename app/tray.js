@@ -55,45 +55,7 @@ class TrayControl {
     }, 5000);
 
     const self = this;
-    const contextMenuShow = Menu.buildFromTemplate([
-      {
-        label: 'Show',
-        click() {
-          self.mainWindow.show();
-        },
-      },
-      {
-        label: 'Quit',
-        click() {
-          app.quit();
-        },
-      },
-    ]);
-
-    const contextMenuHide = Menu.buildFromTemplate([
-      {
-        label: 'Hide',
-        click() {
-          self.mainWindow.hide();
-        },
-      },
-      {
-        label: 'Quit',
-        click() {
-          app.quit();
-        },
-      },
-      {
-        label: 'AppMode',
-        click() {
-          const val = serviceHelper.appMode();
-          dialog.showMessageBox({
-            title: 'tray',
-            message: val ? val : '< none >',
-          });
-          console.log('----[ appMode: ', val);
-        },
-      },
+    const serviceMenuItems = [
       {
         label: 'ServiceStatus',
         visible: this.showServiceCommands,
@@ -174,6 +136,26 @@ class TrayControl {
           serviceHelper.removeFullBat();
         },
       },
+    ];
+
+    let commonMenuItems = [
+      {
+        label: 'Quit',
+        click() {
+          app.quit();
+        },
+      },
+      {
+        label: 'AppMode',
+        click() {
+          const val = serviceHelper.appMode();
+          dialog.showMessageBox({
+            title: 'tray',
+            message: val ? val : '< none >',
+          });
+          console.log('----[ appMode: ', val);
+        },
+      },
       {
         label: 'About',
         click() {
@@ -183,7 +165,29 @@ class TrayControl {
           });
         },
       },
-    ]);
+    ];
+
+    if (serviceHelper.appMode() === 'installed') {
+      commonMenuItems = commonMenuItems.concat(serviceMenuItems);
+    }
+
+    const contextMenuShow = Menu.buildFromTemplate([
+      {
+        label: 'Show',
+        click() {
+          self.mainWindow.show();
+        },
+      },
+    ].concat(commonMenuItems));
+
+    const contextMenuHide = Menu.buildFromTemplate([
+      {
+        label: 'Hide',
+        click() {
+          self.mainWindow.hide();
+        },
+      },
+    ].concat(commonMenuItems));
 
     if (!this.mainWindow.isMinimized() && !this.mainWindow.isVisible()) {
       tray.setContextMenu(contextMenuShow);

@@ -12,7 +12,8 @@ export default class ServiceHelper {
   }
 
   static get EXE() {
-    return path.join(ServiceHelper.dirname, 'spade-service.exe');
+    const p = path.join(ServiceHelper.dirname, 'spade-service.exe');
+    return `"${p}"`;
   }
 
   static get OPS() {
@@ -147,14 +148,16 @@ export default class ServiceHelper {
   }
 
   static addFullBat() {
-    const exe = path.join(ServiceHelper.dirname, 'service-install-full.bat');
+    const p = path.join(ServiceHelper.dirname, 'service-install-full.bat');
+    const exe = `"${p}"`;
     let output1 = null;
     output1 = runas(exe, [], ServiceHelper.OPS);
     console.log('----[ addFullBat: ', output1);
   }
 
   static removeFullBat() {
-    const exe = path.join(ServiceHelper.dirname, 'service-uninstall-full.bat');
+    const p = path.join(ServiceHelper.dirname, 'service-uninstall-full.bat');
+    const exe = `"${p}"`;
     let output1 = null;
     output1 = runas(exe, [], ServiceHelper.OPT);
     console.log('----[ removeFullBat: ', output1);
