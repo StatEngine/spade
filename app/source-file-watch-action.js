@@ -33,8 +33,15 @@ export default class SourceFileWatchAction extends SourceAction {
   // run() funtion not defined as the file-watch will not use it
 
   watch(directoryToWatch) {
-    // Convert the potential relative path to a absolute path.
+    // Default watch options may change depending on if watching a network drive.
+    const watchOptions = {
+      events: ['add'],
+      awaitWriteFinish: true,
+      ignoreInitial: false,
+      read: false,
+    };
     const resolvedDirectory = path.resolve(directoryToWatch);
+    // Check if path is to a network drive
     console.log('Performing watch on ', resolvedDirectory);
     const pattern = `${resolvedDirectory}\\*`;
     let moveFolder = this.config.fileWatch.processed.folder;
@@ -47,12 +54,7 @@ export default class SourceFileWatchAction extends SourceAction {
     console.log('Moving files to: ', moveFolder);
     return watch(
       pattern,
-      {
-        events: ['add'],
-        awaitWriteFinish: true,
-        ignoreInitial: false,
-        read: false,
-      },
+      watchOptions,
       (event) => {
         const basename = path.basename(event.path);
         const sourceFile = event.path;

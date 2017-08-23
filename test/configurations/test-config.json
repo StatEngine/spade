@@ -26,6 +26,16 @@
             "folder": "./processed/"
         }
       }
+    },
+    "networkFiles": {
+      "enabled": true,
+      "destination": "incidents",
+      "fileWatch": {
+        "folder": "Z:\\",
+        "processed": {
+            "folder": "./processed/"
+        }
+      }
     }
   }
 }

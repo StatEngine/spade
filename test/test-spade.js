@@ -54,8 +54,24 @@ describe('SpadeE2E', () => {
     }, 1000);
   });
 
+  it('Should handle watching a network shared drive', (done) => {
+    const fileBuffer = fs.readFileSync('./test/data/testjson.json');
+
+    try {
+      fs.writeFileSync('Z:\\testJson.json', fileBuffer);
+    } catch (e) {
+      console.log('Unable to write File');
+    }
+
+    setTimeout(() => {
+      assert.equal(fs.existsSync('Z:\\testJson.json'), false);
+      assert.equal(fs.existsSync('Z:\\processed\\testJson.json'), true);
+      done();
+    }, 2500);
+  });
+
   after((done) => {
-    stub.restore();
+    // stub.restore();
     done();
   });
 });
