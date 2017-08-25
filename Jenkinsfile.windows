@@ -9,10 +9,19 @@ node('windows') {
 
   stage('Archive') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
-      sh """
-        ./clean-install.sh
-        npm run package
-      """
+    bat """
+      npm install
+      npm make
+
+      if not exist "artifacts" mkdir artifacts
+      del /s /q "artifacts\\*"
+
+      7zip a artifacts\\spade.zip * -xr artifacts
+
+      set ARTIFACT=artifacts\\spade.zip
+
+      call bin\\s3Push.bat
+    """
     }
   }
 }
