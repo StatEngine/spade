@@ -8,8 +8,11 @@ node('windows') {
   }
 
   stage('Archive') {
-    bat """
-      @echo TODO: write bat script to create archive and upload to s3.
-    """
+    withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
+      sh """
+        ./clean-install.sh
+        npm run package
+      """
+    }
   }
 }
