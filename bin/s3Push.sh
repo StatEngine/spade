@@ -32,6 +32,11 @@ function os_name {
   echo $os | tr '[:upper:]' '[:lower:]'
 }
 
+
+test -n "$OPERATING_SYSTEM" || OPERATING_SYSTEM=$(os_name)
+test -n "$GIT_BRANCH" || GIT_BRANCH=$(git_branch)
+test -n "$GIT_COMMIT" || GIT_COMMIT=$(git log -n1 --pretty=format:%H)
+
 function metadata {
   local handle
   handle=$(mktemp)
@@ -49,10 +54,6 @@ EOF
 
   echo $handle
 }
-
-test -n "$OPERATING_SYSTEM" || OPERATING_SYSTEM=$(os_name)
-test -n "$GIT_BRANCH" || GIT_BRANCH=$(git_branch)
-test -n "$GIT_COMMIT" || GIT_COMMIT=$(git log -n1 --pretty=format:%H)
 
 aws s3 cp $ARTIFACT s3://${ARTIFACT_BUCKET}/${APP}/${OPERATING_SYSTEM}/${GIT_BRANCH}/${GIT_COMMIT}/$APP${extension}
 

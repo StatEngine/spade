@@ -11,7 +11,15 @@ node {
     sh """
       test -f /etc/runtime && source /etc/runtime
 
-      echo "TODO: write shell script to build the artifact and push to s3 using ./bin/s3push.sh"
+      export ARTIFACT=artifacts/spade.tar.bz2
+
+      ./clean-package.sh
+
+      mkdir -p artifacts
+      rm -rf artifacts/*
+      tar --exclude artifacts/* -cjf \$ARTIFACT .
+      
+      ./bin/s3Push.sh
     """
   }
 }
