@@ -2,6 +2,7 @@ import schedule from 'node-schedule';
 import fs from 'fs';
 import path from 'path';
 import DestinationS3Action from './destination-s3-action';
+import DestinationStdOutAction from './destination-stdout-action';
 import SourceFileWatchAction from './source-file-watch-action';
 import SourceSqliteAction from './source-sqlite-action';
 import Reporter from './reporter';
@@ -167,6 +168,8 @@ export class Spade {
     try {
       if (conf.s3) {
         action = new DestinationS3Action(conf);
+      } else if (conf.stdout) {
+        action = new DestinationStdOutAction(conf);
       }
 
       Reporter.sendEvent('spade', 'createDestinationAction', 'core.service');
