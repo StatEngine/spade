@@ -10,7 +10,9 @@ node('windows') {
   stage('Archive') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
     bat """
+      dir
       clean-package.sh
+      dir
 
       set ARTIFACT=releases\\setup.exe
 
