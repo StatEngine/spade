@@ -1,12 +1,12 @@
 if not defined ARTIFACT_BUCKET exit /B 1
 
-if not defined APP set APP="spade"
-if not defined PACKAGING set PACKAGING="exe"
-if not defined DEPLOY_LATEST set DEPLOY_LATEST="true"
+if not defined APP set APP=spade
+if not defined PACKAGING set PACKAGING=exe
+if not defined DEPLOY_LATEST set DEPLOY_LATEST=true
 
 if not defined VERSION for /f %%i in ('git describe --long --tags --always') do set VERSION=%%i
 
-if not defined ARTIFACT set ARTIFACT=%APP%.%PACKAGING%
+if not defined ARTIFACT set ARTIFACT=releases\setup.exe
 
 if not exist %ARTIFACT% exit /B 1
 

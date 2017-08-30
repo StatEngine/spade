@@ -10,9 +10,16 @@ node('windows') {
   stage('Archive') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
     bat """
-      dir
-      clean-package.sh
-      dir
+      npm cache clean
+
+      rmdir /s /q out
+      rmdir /s /q dll
+      rmdir /s /q release
+      rmdir /s /q node_modules
+      rmdir /s /q app\\node_modules
+
+      npm install
+      npm run package
 
       set ARTIFACT=releases\\setup.exe
 
