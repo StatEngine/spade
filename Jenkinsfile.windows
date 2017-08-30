@@ -10,15 +10,9 @@ node('windows') {
   stage('Archive') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
     bat """
-      npm install
-      npm make
+      clean-package.sh
 
-      if not exist "artifacts" mkdir artifacts
-      del /s /q "artifacts\\*"
-
-      7zip a artifacts\\spade.zip * -xr artifacts
-
-      set ARTIFACT=artifacts\\spade.zip
+      set ARTIFACT=releases\\setup.exe
 
       call bin\\s3Push.bat
     """
