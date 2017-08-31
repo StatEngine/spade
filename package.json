@@ -42,7 +42,6 @@
       "app.html",
       "main.prod.js",
       "main.prod.js.map",
-      "actions.json",
       "git-state.json",
       "images/",
       "service/"
