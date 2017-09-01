@@ -12,11 +12,15 @@ node('windows') {
     bat """
       npm --verbose cache clean
 
+      echo clean
+
       rmdir /s /q out
       rmdir /s /q dll
       rmdir /s /q release
       rmdir /s /q node_modules
       rmdir /s /q app\\node_modules
+
+      echo cleaned
 
       npm install
       npm run package
