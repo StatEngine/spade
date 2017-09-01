@@ -19,7 +19,7 @@ node('windows') {
       rmdir /s /q node_modules
       rmdir /s /q app\\node_modules
 
-      npm --verbose cache clean & npm install & npm run package
+      npm --verbose cache clean & npm --verbose install & npm --verbose run package
 
       set ARTIFACT=releases\\setup.exe
 
