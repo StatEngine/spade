@@ -10,7 +10,7 @@ node('windows') {
   stage('Archive') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
     bat """
-      npm cache clean
+      npm --verbose cache clean
 
       rmdir /s /q out
       rmdir /s /q dll
