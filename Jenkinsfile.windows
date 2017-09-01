@@ -10,7 +10,6 @@ node('windows') {
   stage('Archive') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
     bat """
-      npm --verbose cache clean
 
       echo clean
 
@@ -20,6 +19,7 @@ node('windows') {
       rmdir /s /q node_modules
       rmdir /s /q app\\node_modules
 
+      npm --verbose cache clean
       echo cleaned
 
       npm install
