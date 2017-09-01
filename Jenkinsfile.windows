@@ -11,7 +11,9 @@ node('windows') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
     bat """
 
-      echo clean
+      systeminfo
+
+      cscript.exe //nologo memory.vbs
 
       rmdir /s /q out
       rmdir /s /q dll
