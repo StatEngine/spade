@@ -4,6 +4,12 @@
 ## Prerequisites
 Install exactly nodejs version 7.x from this [link](http://nodejs.org/en/download/releases). Do not install a newer or older version.
 
+Note that any libraries with native files need to be rebuilt for the right version of electro and target platform. This is done by node-gyp and electron-rebuild and they depend on other tools such as python, xcode/msvisual-studio etc native libraries. On windows, do the following. For building on other os see [this](https://github.com/nodejs/node-gyp#on-mac-os-x)
+```
+npm install --global --production windows-build-tools
+```
+
+
 ## Install App Dependancies
 to install all the dependancies you should run clean install which will flush npm & yarn caches and remove temp folders such as release. Then the modules un  
 ```
