@@ -8,6 +8,7 @@ Install exactly nodejs version 7.x from this [link](http://nodejs.org/en/downloa
 ### Build tools
 `npm` Libraries with native files such as sqlite, runas, etc need to be rebuilt for the right version of electron and target platform. This is done by node-gyp and electron-rebuild and they depend on other tools such as python, xcode/msvisual-studio etc native libraries. On windows, do the following. For building on other os see [this](https://github.com/nodejs/node-gyp#on-mac-os-x)
 ```
+# must run as *** admin *** otherwise will see un
 npm install --global --production windows-build-tools
 ```
 After installing build tools dependancies, `python` needs to be available in your path so that node-gyp can find it. In a bash shell on windows try `which python` to see if the binary is found after you add it to your path and relaunch the shell. In windows the path might be
