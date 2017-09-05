@@ -11,19 +11,16 @@ node('windows') {
     withEnv(["ARTIFACT_BUCKET=\$ARTIFACT_BUCKET"]) {
     bat """
 
-      systeminfo
-
-      cscript.exe //nologo memory.vbs
-
       rmdir /s /q out
       rmdir /s /q dll
       rmdir /s /q release
       rmdir /s /q node_modules
       rmdir /s /q app\\node_modules
 
+      npm install --global --production windows-build-tools
       npm --verbose cache clean & npm --verbose install & npm --verbose run package
 
-      set ARTIFACT=releases\\setup.exe
+      set ARTIFACT="release\\Spade Setup 0.1.0.exe"
 
       call bin\\s3Push.bat
     """
