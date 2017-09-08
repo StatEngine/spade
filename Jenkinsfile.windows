@@ -17,7 +17,6 @@ node('windows') {
       rmdir /s /q node_modules
       rmdir /s /q app\\node_modules
 
-      call npm install --global --production windows-build-tools
       call npm --verbose cache clean
       call npm --verbose install
       call npm --verbose run package
