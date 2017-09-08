@@ -18,9 +18,9 @@ node('windows') {
       rmdir /s /q node_modules
       rmdir /s /q app\\node_modules
 
-      call --verbose npm cache clean
-      call npm install
-      call npm run package
+      call npm --verbose cache clean
+      call npm --verbose install
+      call npm --verbose run package
 
       set ARTIFACT="release\\Spade Setup 0.1.0.exe"
 
