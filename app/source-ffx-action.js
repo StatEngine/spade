@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Promise from 'bluebird';
 import { SourceAction } from './actions';
 
+sql.Promise = require('bluebird');
 
 export default class SourceFfxAction extends SourceAction {
   constructor(config, destination) {
@@ -159,7 +160,7 @@ export default class SourceFfxAction extends SourceAction {
           })
         }, { concurrency: 10 });
       })
-      .then(sql.close);
+      .finally(sql.close);
   }
 
   finalize() {
