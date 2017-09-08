@@ -30,10 +30,6 @@ export default class SourceFfxAction extends SourceAction {
     });
   }
 
-  static getRows(table, id, idColumn = 'eid') {
-    return SourceFfxAction.query(`SELECT * from ${table} where ${idColumn}=${id}`, table);
-  }
-
   static getEvent(id) {
     return SourceFfxAction.query(`
       SELECT TOP (100) PERCENT
@@ -81,7 +77,6 @@ export default class SourceFfxAction extends SourceAction {
       dbo.FFX_ICAD_Types.EMS_Type,
       dbo.FFX_ICAD_Types.Reportable,
       dbo.common_event.cdts AS employee_key,
-      dbo.agency_event.sdts,
       dbo.FFX_ICAD_Types.SpecialOperations,
       dbo.agency_event.is_open,
       dbo.agency_event.open_and_curent
@@ -93,19 +88,101 @@ export default class SourceFfxAction extends SourceAction {
       `, 'event', [['eid', sql.Int, id]]);
   }
 
+  static getTimes(id) {
+    return SourceFfxAction.query(`SELECT
+      CAST(SUBSTRING(cdts, 1, 4) + '-' + SUBSTRING(cdts, 5, 2) + '-' + SUBSTRING(cdts, 7, 2) + ' ' + SUBSTRING(cdts, 9, 2) + ':' + SUBSTRING(cdts, 11, 2) + ':' + SUBSTRING(cdts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS creation_date,
+      cpers,
+      cterm,
+      curent,
+      eid,
+      info_scope,
+      remarks,
+      rev_num,
+      row_num,
+      set_name,
+      state_desc,
+      state_dts,
+      state_sec,
+      timer_value,
+      CAST(SUBSTRING(udts, 1, 4) + '-' + SUBSTRING(udts, 5, 2) + '-' + SUBSTRING(udts, 7, 2) + ' ' + SUBSTRING(udts, 9, 2) + ':' + SUBSTRING(udts, 11, 2) + ':' + SUBSTRING(udts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS update_date,
+      updt_flag,
+      upers,
+      user_gen,
+      uterm
+      from incident_tracking
+      where eid=@id`, 'incident_tracking', [['id', sql.Int, id]]);
+  }
+
 
   static getPersonnel(table, id) {
-    return SourceFfxAction.query(`SELECT *
+    return SourceFfxAction.query(`SELECT
+      id,
+      CAST(SUBSTRING(cdts, 1, 4) + '-' + SUBSTRING(cdts, 5, 2) + '-' + SUBSTRING(cdts, 7, 2) + ' ' + SUBSTRING(cdts, 9, 2) + ':' + SUBSTRING(cdts, 11, 2) + ':' + SUBSTRING(cdts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS creation_date,
+      empid,
+      primary_empid,
+      CAST(SUBSTRING(recovery_cdts, 1, 4) + '-' + SUBSTRING(recovery_cdts, 5, 2) + '-' + SUBSTRING(recovery_cdts, 7, 2) + ' ' + SUBSTRING(cdts, 9, 2) + ':' + SUBSTRING(recovery_cdts, 11, 2) + ':' + SUBSTRING(recovery_cdts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS backdated_creation_date,
+      convert(varchar(25), un_hi_rec_id, 1) AS un_hi_rec_id,
+      ht_radio
       FROM un_hi_persl
       WHERE un_hi_rec_id IN (SELECT unique_id FROM un_hi WHERE eid=@id)`,
       table, [['id', sql.Int, id]]);
   }
 
+  static getApparatus(id) {
+    return SourceFfxAction.query(`SELECT
+      act_check,
+      ag_id,
+      carid,
+      CAST(SUBSTRING(cdts, 1, 4) + '-' + SUBSTRING(cdts, 5, 2) + '-' + SUBSTRING(cdts, 7, 2) + ' ' + SUBSTRING(cdts, 9, 2) + ':' + SUBSTRING(cdts, 11, 2) + ':' + SUBSTRING(cdts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS creation_date,
+      cpers,
+      crew_id,
+      csec,
+      cterm,
+      dgroup,
+      disp_num,
+      eid,
+      lastxor,
+      lastyor,
+      location,
+      mdtid,
+      mileage,
+      num_1,
+      CAST(SUBSTRING(recovery_cdts, 1, 4) + '-' + SUBSTRING(recovery_cdts, 5, 2) + '-' + SUBSTRING(recovery_cdts, 7, 2) + ' ' + SUBSTRING(cdts, 9, 2) + ':' + SUBSTRING(recovery_cdts, 11, 2) + ':' + SUBSTRING(recovery_cdts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS backdated_creation_date,
+      sub_tycod,
+      tycod,
+      uhiscm,
+      unid,
+      convert(varchar(25), unique_id, 1) AS unique_id,
+      unit_status,
+      sunpro_flag,
+      radio_alias,
+      ips_eventcategory,
+      disp_alarm_lev,
+      mdthostname,
+      oag_id,
+      odgroup,
+      page_id,
+      dbo.un_hi.station,
+      unityp,
+      dbo.FFX_ICAD_Units.Battalion AS unit_battalion,
+      dbo.FFX_ICAD_Units.Station AS unit_station,
+      dbo.FFX_ICAD_Units.Unit_Type AS unit_type,
+      dbo.FFX_ICAD_Units.Description AS unit_description,
+      dbo.FFX_ICAD_Units.Agency AS unit_agency,
+      dbo.FFX_ICAD_Units.Category AS unit_category,
+      dbo.FFX_ICAD_Units.ExpcStaff AS unit_expected_staffing
+      FROM un_hi
+      LEFT JOIN dbo.FFX_ICAD_Units ON dbo.un_hi.unid = dbo.FFX_ICAD_Units.Unit_Id
+      WHERE eid=@id`,
+      'un_hi', [['id', sql.Int, id]]);
+  }
+
   static processIncident(id) {
     return Promise.all([
       SourceFfxAction.getEvent(id),
-      SourceFfxAction.getRows('V_Unit_History_Current', id, 'event_id'),
+      SourceFfxAction.getApparatus(id),
       SourceFfxAction.getPersonnel('un_hi_persl', id),
+      SourceFfxAction.getTimes(id),
     ]);
   }
 
