@@ -18,7 +18,7 @@ node('windows') {
       rmdir /s /q node_modules
       rmdir /s /q app\\node_modules
 
-      call npm cache clean
+      call --verbose npm cache clean
       call npm install
       call npm run package
 
