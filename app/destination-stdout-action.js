@@ -10,15 +10,20 @@ export default class DestinationStdOutAction extends DestinationAction {
     super(config);
     this.client = null;
     console.log('DestinationStdOutAction.constructor: ', this.config);
+    this.pretty = config.stdout.pretty || false;
   }
 
   init() {
     Reporter.sendEvent('DestinationStdOutAction', 'init', 'core.actions');
   }
 
+  print(payload) {
+    return JSON.stringify(payload, undefined, this.pretty ? 2 : 0);
+  }
+
   run(name, payload) {
     return new Promise((resolve, reject) => {
-      console.log(`DestinationStdOutAction.run: name: ${name}, payload: ${JSON.stringify(payload)}`)
+      console.log(`DestinationStdOutAction.run: name: ${name}, payload: ${this.print(payload)}`)
       resolve();
     });
   }
