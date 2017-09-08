@@ -4,6 +4,7 @@ node('windows') {
   def root = pwd()
 
   stage('Setup') {
+    deleteDir()
     git url: 'https://github.com/StatEngine/spade', branch: 'master'
   }
 
@@ -26,5 +27,9 @@ node('windows') {
       call bin\\s3Push.bat
     """
     }
+  }
+
+  stage('Cleanup') {
+    deleteDir()
   }
 }
