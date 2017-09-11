@@ -32,7 +32,7 @@ export default class SourceFfxAction extends SourceAction {
 
   static getEvent(id) {
     return SourceFfxAction.query(`
-      SELECT TOP (100) PERCENT
+      SELECT TOP 1
       dbo.agency_event.num_1 AS event_num,
       dbo.agency_event.eid AS event_id,
       dbo.agency_event.dgroup AS disp_group,
@@ -82,7 +82,7 @@ export default class SourceFfxAction extends SourceAction {
       dbo.agency_event.open_and_curent
       FROM  dbo.agency_event
       INNER JOIN dbo.common_event ON dbo.agency_event.eid = dbo.common_event.eid
-      INNER JOIN dbo.FFX_ICAD_Types ON dbo.agency_event.tycod = dbo.FFX_ICAD_Types.Evt_Typ
+      LEFT JOIN dbo.FFX_ICAD_Types ON dbo.agency_event.tycod = dbo.FFX_ICAD_Types.Evt_Typ
       WHERE dbo.common_event.eid=@eid
       ORDER BY dbo.agency_event.sdts
       `, 'event', [['eid', sql.Int, id]]);
@@ -234,7 +234,7 @@ export default class SourceFfxAction extends SourceAction {
             const merged = _.assign(...res);
             return self.destination.run(`${merged.event.event_num}.json`, merged)
               .then(() => SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0));
-          })
+          });
         }, { concurrency: 10 });
       })
       .finally(sql.close);
