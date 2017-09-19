@@ -86,18 +86,18 @@ export class SourceAction {
     // doesn't affect child actions.
     let privateJob = null;
     this.startSchedule = function () { // eslint-disable-line func-names
+      const self = this;
       if (this.config.trigger && this.config.trigger.schedule) {
         privateJob = schedule.scheduleJob(this.config.trigger.schedule, () => {
-          if (!this.getRunning()) {
-            this.setRunning(true);
-            try {
-              this.run();
-            } catch (e) {
-              console.log('====[ action run failed. ', this.config);
-              this.setError(e);
-            } finally {
-              this.setRunning(false);
-            }
+          if (!self.getRunning()) {
+            self.setRunning(true);
+            self.run()
+            .catch((e) => {
+              console.log('====[ action run failed. ', self.config);
+              console.log(`====[ action failure message: ${e.message}`);
+              self.setError(e);
+            })
+            .finally(() => { self.setRunning(false); });
           } else {
             console.log('~~~~[ previous run not completed yet!', this.config);
           }
@@ -154,6 +154,7 @@ export class SourceAction {
    */
   init() {
     console.log('SourceAction.init: ', this.config);
+    this.startSchedule();
   }
 
   // run is only called if it is not running already. If a previous run job is

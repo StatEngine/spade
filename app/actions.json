@@ -1,24 +1,7 @@
 {
-  "departmentId": "12345",
-  "reporter": {
-    "userConsent": true,
-    "trigger": {
-      "schedule": "*/1 * * * *"
-    }
-  },
-  "destinations": {
-    "incidents": {
-      "s3": {
-        "Bucket": "my-bucket",
-        "folder": "my-folder",
-        "accessKeyId": "my-username",
-        "secretAccessKey": "JKHVGCJC"
-      }
-    }
-  },
   "sources": {
     "cadDb": {
-      "enabled": true,
+      "enabled": false,
       "destination": "incidents",
       "trigger": {
         "schedule": "*/1 * * * *"
@@ -53,11 +36,28 @@
       "enabled": true,
       "destination": "incidents",
       "fileWatch": {
-        "folder": "C:\\Users\\Admin\\Documents\\spade_new\\cad-folder",
+        "folder": "C:/Users/Admin/Documents/spade_new/cad-folder",
         "processed": {
           "folder": "./processed"
         }
       }
+    }
+  },
+  "destinations": {
+    "incidents": {
+      "s3": {
+        "bucket": "my-bucket",
+        "folder": "my-folder",
+        "accessKeyId": "my-username",
+        "secretAccessKey": "JKHVGCJC"
+      }
+    }
+  },
+  "departmentId": "12345",
+  "reporter": {
+    "userConsent": true,
+    "trigger": {
+      "schedule": "*/1 * * * *"
     }
   }
 }

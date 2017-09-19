@@ -34,12 +34,12 @@ export default class DestinationS3Action extends DestinationAction {
       accessKeyId: this.config.s3.accessKeyId,
       secretAccessKey: this.config.s3.secretAccessKey,
     });
-    /* const testParams = {
-      Bucket: this.config.s3.Bucket,
+    /*const testParams = {
+      Bucket: this.config.s3.bucket,
     };
     this.client.headBucket(testParams, (err, data) => {
       if (err) {
-        this.setError(new S3Error(err));
+        Reporter.sendException(err);
         console.log(err);
       } else {
         this.setStatus('READY');
@@ -69,7 +69,7 @@ export default class DestinationS3Action extends DestinationAction {
       const s3Params = {
         Body: writePayload,
         Key: keyName,
-        Bucket: this.config.s3.Bucket,
+        Bucket: this.config.s3.bucket,
       };
       this.uploadToS3(s3Params, (s3Err, s3Data) => {
         if (s3Err) {

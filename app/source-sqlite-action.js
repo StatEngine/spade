@@ -35,7 +35,7 @@ export default class SourceSqliteAction extends SourceAction {
     this.tables = [];
     for (let iTable = 0; iTable < this.config.sqlite.tables.length; iTable += 1) {
       const tableConfig = this.config.sqlite.tables[iTable];
-      const tableSelect = sql.select(sql.star()).from(tableConfig.name).order(tableConfig.sortKey);
+      const tableSelect = sql.select().from(tableConfig.name).order(tableConfig.sortKey);
       console.log('Table select: ', tableSelect.toString());
       tableConfig.selectQuery = tableSelect;
       this.tables.push(tableConfig);

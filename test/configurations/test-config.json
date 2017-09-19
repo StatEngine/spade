@@ -8,8 +8,8 @@
   },
   "destinations": {
     "incidents": {
-      "s3": {
-        "Bucket": "my-bucket",
+      "stdout": {
+        "bucket": "my-bucket",
         "folder": "my-folder",
         "accessKeyId": "AccessID",
         "secretAccessKey": "secretAccess"

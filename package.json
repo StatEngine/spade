@@ -27,6 +27,9 @@
     "start-service": "cross-env HOT=1 NODE_ENV=development electron -r babel-register ./app/main.dev --service",
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
     "test": "electron-mocha --interactive --compilers js:./node_modules/babel-core/register ./test/",
+    "test-core": "electron-mocha --interactive --compilers js:./node_modules/babel-core/register ./test/test-spade.js",
+    "test-sqlite": "electron-mocha --interactive --compilers js:./node_modules/babel-core/register ./test/test-sqlite.js",
+    "test-mssql": "electron-mocha --interactive --compilers js:./node_modules/babel-core/register ./test/test-mssql.js",
     "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings ./test/runTests.js e2e",
     "test-watch": "npm test -- --watch"

@@ -1,19 +1,36 @@
 import fs from 'fs';
 import sinon from 'sinon';
 import chai from 'chai';
+import Promise from 'bluebird';
 import { Spade } from '../app/spade';
+import { SourceAction } from '../app/actions.js'
 
 const assert = chai.assert;
 
 describe('SpadeE2E', () => {
   let destAction = null;
   let stub = null;
+  let stubRun = null;
   let testSpade = null;
+  let testSource = null;
   before((done) => {
     testSpade = new Spade();
     testSpade.init('./test/configurations/test-config.json');
     destAction = testSpade.destinations.incidents;
-    stub = sinon.stub(destAction, 'run').resolves(true);
+    const sourceConfig = {
+      trigger: {
+        schedule: '*/1 * * * *',
+      },
+    };
+    testSource = new SourceAction(sourceConfig);
+    // Stub out run function to spin for 10 seconds before exiting,
+    /* stubRun = sinon.stub(testSource, 'run').callsFake(() => {
+      const start = Date.now();
+      console.log("stub run");
+      while (Date.now() - start < 65000) {
+        // Do nothing
+      }
+    });*/
     done();
   });
 
@@ -69,6 +86,13 @@ describe('SpadeE2E', () => {
       done();
     }, 2500);
   });
+
+  /* it('Should wait for first job to finish before running the next scheduled job', (done) => {
+    testSource.init();
+    setTimeout(() => {
+      done();
+    }, 66000);
+  });*/
 
   after((done) => {
     // stub.restore();
