@@ -77,7 +77,7 @@ export default class Settings extends Component {
     ];
 
     this.destinationTypes = [
-      { key: 'create_s3', label: 'New S3 Connection', defaults: { s3: { Bucket: '', folder: '', accessKeyId: '', secretAccessKey: '' } } },
+      { key: 'create_s3', label: 'New S3 Connection', defaults: { s3: { bucket: '', folder: '', accessKeyId: '', secretAccessKey: '' } } },
     ];
 
     // if (this.state.sourceFolder !== '') {
@@ -359,6 +359,15 @@ export default class Settings extends Component {
                   value={destinationConfig.folder}
                   onChange={(e) => {
                     destinationConfig.folder = e.target.value;
+                    this.alterSettings();
+                  }}
+                /><br />
+
+                <TextField
+                  floatingLabelText="Bucket"
+                  value={destinationConfig.bucket}
+                  onChange={(e) => {
+                    destinationConfig.bucket = e.target.value;
                     this.alterSettings();
                   }}
                 /><br />
