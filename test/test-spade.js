@@ -8,8 +8,6 @@ import { SourceAction } from '../app/actions.js'
 const assert = chai.assert;
 
 describe('SpadeE2E', () => {
-  let destAction = null;
-  let stub = null;
   let stubRun = null;
   let testSpade = null;
   let testSource = null;

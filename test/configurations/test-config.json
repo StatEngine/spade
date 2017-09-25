@@ -8,12 +8,7 @@
   },
   "destinations": {
     "incidents": {
-      "stdout": {
-        "bucket": "my-bucket",
-        "folder": "my-folder",
-        "accessKeyId": "AccessID",
-        "secretAccessKey": "secretAccess"
-      }
+      "stdout": { }
     }
   },
   "sources": {
