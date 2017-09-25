@@ -65,8 +65,9 @@ export class Spade {
     } else if (typeof config === 'object') {
       this.config = config;
     } else {
-      console.log('----[ Using default config');
-      this.config = this.loadConfig(path.join(__dirname, 'actions.json'));
+      const defaultConfigPath = path.join(__dirname, 'actions.json');
+      console.log('----[ Using default config: ', defaultConfigPath);
+      this.config = this.loadConfig(defaultConfigPath);
     }
 
     this.startReporterHeartbeat();

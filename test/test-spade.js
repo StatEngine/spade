@@ -17,20 +17,21 @@ describe('SpadeE2E', () => {
     testSpade = new Spade();
     testSpade.init('./test/configurations/test-config.json');
     destAction = testSpade.destinations.incidents;
+    // Specifically for timeout testing.
     const sourceConfig = {
       trigger: {
-        schedule: '*/1 * * * *',
+        schedule: 0.8,
       },
     };
     testSource = new SourceAction(sourceConfig);
     // Stub out run function to spin for 10 seconds before exiting,
-    /* stubRun = sinon.stub(testSource, 'run').callsFake(() => {
-      const start = Date.now();
-      console.log("stub run");
-      while (Date.now() - start < 65000) {
-        // Do nothing
-      }
-    });*/
+    stubRun = sinon.stub(testSource, 'run').callsFake(() => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(true);
+        }, 1300);
+      });
+    });
     done();
   });
 
@@ -84,17 +85,18 @@ describe('SpadeE2E', () => {
       assert.equal(fs.existsSync('Z:\\testJson.json'), false);
       assert.equal(fs.existsSync('Z:\\processed\\testJson.json'), true);
       done();
-    }, 2500);
+    }, 1400);
   });
 
-  /* it('Should wait for first job to finish before running the next scheduled job', (done) => {
-    testSource.init();
+  it('Should wait for first job to finish before running the next scheduled job', (done) => {
+    testSource.startSchedule(true);
     setTimeout(() => {
       done();
-    }, 66000);
-  });*/
+    }, 1700);
+  });
 
   after((done) => {
+    testSource.stopSchedule(true);
     // stub.restore();
     done();
   });
