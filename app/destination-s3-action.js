@@ -16,6 +16,9 @@ export default class DestinationS3Action extends DestinationAction {
   constructor(config) {
     super(config);
     this.client = null;
+    // Regex to remove any trailing slashes off of folder name if present
+    this.config.s3.folder = this.config.s3.folder.replace(/\/+$/, '');
+    this.keyFolderPrefix = `${this.config.s3.folder}/`;
     console.log('S3Destination.constructor: ', this.config);
   }
 
@@ -68,7 +71,7 @@ export default class DestinationS3Action extends DestinationAction {
       }
       const s3Params = {
         Body: writePayload,
-        Key: keyName,
+        Key: `${this.keyFolderPrefix}${keyName}`,
         Bucket: this.config.s3.bucket,
       };
       this.uploadToS3(s3Params, (s3Err, s3Data) => {

@@ -46,7 +46,7 @@
   "destinations": {
     "incidents": {
       "s3": {
-        "bucket": "my-bucket",
+        "bucket": "departments",
         "folder": "my-folder",
         "accessKeyId": "my-username",
         "secretAccessKey": "JKHVGCJC"

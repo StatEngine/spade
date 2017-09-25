@@ -85,30 +85,43 @@ export class SourceAction {
     // job object s implemented as a "private" so that implementation changes
     // doesn't affect child actions.
     let privateJob = null;
-    this.startSchedule = function () { // eslint-disable-line func-names
+    this.startSchedule = function (test = false) { // eslint-disable-line func-names\
       const self = this;
+      const runLambda = () => {
+        if (!self.getRunning()) {
+          self.setRunning(true);
+          self.run()
+          .catch((e) => {
+            console.log('====[ action run failed. ', self.config);
+            console.log(`====[ action failure message: ${e.message}`);
+            self.setError(e);
+          })
+          .finally(() => { self.setRunning(false); });
+        } else {
+          console.log('~~~~[ previous run not completed yet!', this.config);
+        }
+      };
+
+      // Schedule the lamda function either by interval for testing
+      // or node-schedule for prod
       if (this.config.trigger && this.config.trigger.schedule) {
-        privateJob = schedule.scheduleJob(this.config.trigger.schedule, () => {
-          if (!self.getRunning()) {
-            self.setRunning(true);
-            self.run()
-            .catch((e) => {
-              console.log('====[ action run failed. ', self.config);
-              console.log(`====[ action failure message: ${e.message}`);
-              self.setError(e);
-            })
-            .finally(() => { self.setRunning(false); });
-          } else {
-            console.log('~~~~[ previous run not completed yet!', this.config);
-          }
-        });
+        if (test) {
+          privateJob = setInterval(runLambda, this.config.trigger.schedule * 1000);
+        } else {
+          privateJob = schedule.scheduleJob(this.config.trigger.schedule, runLambda);
+        }
       }
     };
 
-    this.stopSchedule = function () { // eslint-disable-line func-names
+    this.stopSchedule = function (test = false) { // eslint-disable-line func-names
       if (privateJob) {
-        privateJob.cancel();
-        privateJob = null;
+        if (test) {
+          clearInterval(privateJob);
+          privateJob = null;
+        } else {
+          privateJob.cancel();
+          privateJob = null;
+        }
       }
     };
 
@@ -161,7 +174,9 @@ export class SourceAction {
   // taking a while, the one that was going to fire off is skipped.
   run() {
     console.log('SourceAction.run: ', this.config);
-    return true;
+    return new Promise((resolve, reject) => {
+      resolve(true);
+    });
   }
 
   finalize() {

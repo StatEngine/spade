@@ -46,36 +46,41 @@ export default class SourceSqliteAction extends SourceAction {
 
   run() {
     console.log('----[ SourceSqliteAction.run start');
-    this.db.serialize(() => {
-      const promises = [];
-      for (let iTable = 0; iTable < this.tables.length; iTable += 1) {
-        const table = this.tables[iTable];
-        this.db.each(table.selectQuery.toString(), (err, row) => {
-          // TODO: makes calls to multiple tables, perform merge, then have an array of incidents
-          if (err) {
-            this.setError(err);
-            console.log('Unable to select all from incidents table', err);
-          } else {
-            promises.push(this.destination.run(row[table.sortKey], row));
-            console.log(row);
-          }
-        });
-      }
-
-      Promise.all(promises).then((values) => {
-        // TODO: if all the returned values are a success, consider this a success
-        let highestIncidentNum = null;
-        for ( let i = 0; i < values.length; i += 1) {
-          const incidentIdentifier = values[i];
-          if (highestIncidentNum === null || highestIncidentNum > incidentIdentifier) {
-            highestIncidentNum = incidentIdentifier;
-          }
+    return new Promise((resolve, reject) => {
+      this.db.serialize(() => {
+        const promises = [];
+        for (let iTable = 0; iTable < this.tables.length; iTable += 1) {
+          const table = this.tables[iTable];
+          this.db.each(table.selectQuery.toString(), (err, row) => {
+            // TODO: makes calls to multiple tables, perform merge, then have an array of incidents
+            if (err) {
+              this.setError(err);
+              console.log('Unable to select all from incidents table', err);
+              reject(err);
+            } else {
+              promises.push(this.destination.run(row[table.sortKey], row));
+              console.log(row);
+            }
+          });
         }
-        this.lastIncidentNumber = highestIncidentNum;
-        console.log('----[ SourceSqliteAction all records sent: ', values);
-      }, (e) => {
-        console.log('Unable to send one or more records from DB', e);
-        this.setError(e);
+
+        Promise.all(promises).then((values) => {
+          // TODO: if all the returned values are a success, consider this a success
+          let highestIncidentNum = null;
+          for (let i = 0; i < values.length; i += 1) {
+            const incidentIdentifier = values[i];
+            if (highestIncidentNum === null || highestIncidentNum > incidentIdentifier) {
+              highestIncidentNum = incidentIdentifier;
+            }
+          }
+          this.lastIncidentNumber = highestIncidentNum;
+          console.log('----[ SourceSqliteAction all records sent: ', values);
+          resolve(values);
+        }, (e) => {
+          console.log('Unable to send one or more records from DB', e);
+          this.setError(e);
+          reject(e);
+        });
       });
     });
   }
