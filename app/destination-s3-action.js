@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import S3 from 'aws-sdk/clients/s3';
+import Promise from 'bluebird';
 import { DestinationAction } from './actions';
 import Reporter from './reporter';
 
@@ -59,6 +60,8 @@ export default class DestinationS3Action extends DestinationAction {
       multipartUploadSize: 15728640, // this is the default (15 MB)
       accessKeyId: this.config.s3.accessKeyId,
       secretAccessKey: this.config.s3.secretAccessKey,
+      endpoint: 's3.amazonaws.com/data-import-prod-445861113736-us-east-1/departments',
+      s3BucketEndpoint: true,
     });
     /*const testParams = {
       Bucket: this.config.s3.bucket,

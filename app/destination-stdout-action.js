@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import Promise from 'bluebird';
 import { DestinationAction } from './actions';
 import Reporter from './reporter';
 

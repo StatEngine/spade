@@ -17,9 +17,9 @@ export default class SourceFileWatchAction extends SourceAction {
     return {
       destination: null,
       fileWatch: {
-        folder: null,
+        folder: '',
         processed: {
-          folder: null,
+          folder: '',
         },
       },
     };

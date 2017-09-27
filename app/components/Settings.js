@@ -79,7 +79,7 @@ export default class Settings extends Component {
     ];
 
     this.destinationTypes = [
-      { key: 'create_s3', label: 'New S3 Connection', defaults: { s3: { bucket: '', folder: '', accessKeyId: '', secretAccessKey: '' } } },
+      { key: 'create_s3', label: 'New S3 Connection', defaults: { s3: { bucket: 'departments', folder: '', accessKeyId: '', secretAccessKey: '' } } },
     ];
 
     // if (this.state.sourceFolder !== '') {
@@ -368,6 +368,7 @@ export default class Settings extends Component {
                       this.destinationTypes[0].defaults,
                       { uid: Math.random() }
                     );
+                    config.destination[newDestinationKey].s3.folder = config.departmentId;
                     source.destination = newDestinationKey;
                   } else {
                     source.destination = value;
@@ -393,15 +394,6 @@ export default class Settings extends Component {
                   value={destinationConfig.folder}
                   onChange={(e) => {
                     destinationConfig.folder = e.target.value;
-                    this.alterSettings();
-                  }}
-                /><br />
-
-                <TextField
-                  floatingLabelText="Bucket"
-                  value={destinationConfig.bucket}
-                  onChange={(e) => {
-                    destinationConfig.bucket = e.target.value;
                     this.alterSettings();
                   }}
                 /><br />
@@ -472,10 +464,15 @@ export default class Settings extends Component {
 
               // TODO: this should be a deep clone (along with ALL similar
               // patterns using sourceTypes/destinationTypes in this file)
+              const destKeys = Object.keys(config.destinations);
+              let destination = null;
+              if (destKeys.length !== 0) {
+                destination = destKeys[0];
+              }
               config.sources[newSourceKey] = Object.assign({}, {
                 enabled: false,
                 // TODO: this next line would crash if no destinations
-                destination: Object.keys(config.destinations)[0],
+                destination: destination,
                 [this.sourceTypes[0].key]: this.sourceTypes[0].defaults,
                 uid: Math.random(),
               });

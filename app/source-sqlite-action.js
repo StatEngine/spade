@@ -4,6 +4,7 @@ import sql from 'sql';
 
 // import mssql from 'mssql';
 // import sqlite from 'sqlite';
+import Promise from 'bluebird';
 import { SourceAction } from './actions';
 
 sql.setDialect('sqlite');
