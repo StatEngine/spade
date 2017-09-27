@@ -167,7 +167,6 @@ export class SourceAction {
    */
   init() {
     console.log('SourceAction.init: ', this.config);
-    this.startSchedule();
   }
 
   // run is only called if it is not running already. If a previous run job is
@@ -181,7 +180,6 @@ export class SourceAction {
 
   finalize() {
     console.log('SourceAction.finalize: ', this.config);
-    this.stopSchedule();
   }
 }
 

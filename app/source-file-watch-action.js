@@ -5,12 +5,35 @@ import watch from 'gulp-watch';
 import Reporter from './reporter';
 import { SourceAction } from './actions';
 
-
+export const type = 'fileWatch';
 export default class SourceFileWatchAction extends SourceAction {
   constructor(config, destination) {
     super(config, destination);
     this.stream = null;
     console.log('FileWatch.constructor: ', this.config);
+  }
+
+  static getDefaultConfig(currentConfig) {
+    return {
+      destination: null,
+      fileWatch: {
+        folder: null,
+        processed: {
+          folder: null,
+        },
+      },
+    };
+  }
+
+  static validateConfigProperties(config) {
+    if (config.destination === null || config.destination === '') {
+      return false;
+    } else if (config.fileWatch.folder === null || config.fileWatch.folder === '') {
+      return false;
+    } else if (config.fileWatch.processed.folder === null || config.fileWatch.processed.folder === '') {
+      return false;
+    }
+    return true;
   }
 
   // Note: define init to not start schedule

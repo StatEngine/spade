@@ -3,6 +3,7 @@ import path from 'path';
 import { DestinationAction } from './actions';
 import Reporter from './reporter';
 
+export const type = 'stdout';
 export default class DestinationStdOutAction extends DestinationAction {
   constructor(config) {
     super(config);
@@ -10,7 +11,7 @@ export default class DestinationStdOutAction extends DestinationAction {
     console.log('DestinationStdOutAction.constructor: ', this.config);
   }
 
-  init(){
+  init() {
     Reporter.sendEvent('DestinationStdOutAction', 'init', 'core.actions');
   }
 

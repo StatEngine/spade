@@ -16,6 +16,8 @@ import {
   Toggle,
 } from 'material-ui';
 import FileInput from './FileInput';
+//import { DestinationS3Action } from '../destination-s3-action';
+//import { SourceFileWatchAction } from '../source-file-watch-action';
 
 export default class Settings extends Component {
   static configPath() {
@@ -98,7 +100,35 @@ export default class Settings extends Component {
       config,
     });
   }
+  validateSources(config, sourcesKeys) {
+    /*for (let iSource = 0; iSource < sourcesKeys.length; iSource += 1) {
+      const key = sourcesKeys[iSource];
+      const sourceConfig = config.sources[key];
+      if (sourceConfig.fileWatch) {
+        if (SourceFileWatchAction.validateConfigProperties(sourceConfig) === false) {
+          return false;
+        }
+      }
+    }
+    return true;
+    */
+    return true;
+  }
 
+  validateDestinations(config, destinationKeys) {
+    /*for (let iDest = 0; iDest < destinationKeys.length; iDest += 1) {
+      const key = destinationKeys[iDest];
+      const destinationConfig = config.desinations[key];
+      if (destinationConfig.s3) {
+        if (DestinationS3Action.validateConfigProperties(destinationConfig) === false) {
+          return false;
+        }
+      }
+    }
+    return true;
+    */
+    return true;
+  }
   alterSettings() {
     const config = JSON.parse(JSON.stringify(this.state.config));
     const sourcesKeys = Object.keys(config.sources);
@@ -111,7 +141,9 @@ export default class Settings extends Component {
       ...this.state,
       saved: true,
     });
-    Settings.saveConfig(config);
+    if (this.validateSources() && this.validateDestinations(config, destinationsKeys)) {
+      Settings.saveConfig(config);
+    }
 
     this.props.onUpdate(true);
     // TODO: run batch file to restart service
@@ -143,6 +175,7 @@ export default class Settings extends Component {
               this.alterSettings();
             }}
             value={sourceConfig.folder}
+            webkitdirectory
           />
           <FileInput
             label="Processed Folder"
@@ -151,6 +184,7 @@ export default class Settings extends Component {
               this.alterSettings();
             }}
             value={sourceConfig.processed.folder}
+            webkitdirectory
           />
         </div>
       );
@@ -434,7 +468,7 @@ export default class Settings extends Component {
               while (sourcesKeys.indexOf(newSourceKey + i) !== -1) {
                 i += 1;
               }
-              newSourceKey = newSourceKey + i;
+              newSourceKey += i;
 
               // TODO: this should be a deep clone (along with ALL similar
               // patterns using sourceTypes/destinationTypes in this file)

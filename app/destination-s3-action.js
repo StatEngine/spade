@@ -11,7 +11,7 @@ import Reporter from './reporter';
     Error.captureStackTrace(this, S3Error);
   }
 } */
-
+export const type = 's3';
 export default class DestinationS3Action extends DestinationAction {
   constructor(config) {
     super(config);
@@ -20,6 +20,29 @@ export default class DestinationS3Action extends DestinationAction {
     this.config.s3.folder = this.config.s3.folder.replace(/\/+$/, '');
     this.keyFolderPrefix = `${this.config.s3.folder}/`;
     console.log('S3Destination.constructor: ', this.config);
+  }
+
+  // Required module static functions
+  static getDefaultConfig(currentConfig) {
+    const defaultConfig = {
+      bucket: 'departments',
+      folder: currentConfig.departmentId || null,
+      accessKeyId: null,
+      secretAccessKey: null,
+    };
+    return defaultConfig;
+  }
+
+  static validateConfigProperties(config) {
+    const requiredConfigurationProps = ['accessKeyId', 'secretAccessKey', 'folder', 'bucket'];
+    for (let iProp = 0; iProp < requiredConfigurationProps.length; iProp += 1) {
+      const keyName = requiredConfigurationProps[iProp];
+      const value = config.s3[keyName];
+      if (value === null || value === '') {
+        return false;
+      }
+    }
+    return true;
   }
 
   uploadToS3(params, callback) {

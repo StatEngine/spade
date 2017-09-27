@@ -26,6 +26,8 @@ const FileInput = ({ label, onChange, value }) => {
         onChange={e => onChange(e)}
         style={{ display: 'none' }}
         type="file"
+        webkitdirectory="true"
+        directory="true"
       />
     </div>
   );
