@@ -428,9 +428,11 @@ export default class Settings extends Component {
 
       config.destinations[newDestinationKey] = Object.assign({},
         this.destinationTypes[0].defaults,
-        { uid: Math.random() },
+        {
+          uid: Math.random(),
+          s3: { folder: config.departmentId },
+        },
       );
-      config.destinations[newDestinationKey].s3.folder = config.departmentId;
       return newDestinationKey;
     };
 
