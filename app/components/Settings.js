@@ -171,7 +171,7 @@ export default class Settings extends Component {
           <FileInput
             label="Folder"
             onChange={(e) => {
-              sourceConfig.folder = e.target.value;
+              sourceConfig.folder = e.target.files[0].path;
               this.alterSettings();
             }}
             value={sourceConfig.folder}
@@ -180,7 +180,7 @@ export default class Settings extends Component {
           <FileInput
             label="Processed Folder"
             onChange={(e) => {
-              sourceConfig.processed.folder = e.target.value;
+              sourceConfig.processed.folder = e.target.files[0].path;
               this.alterSettings();
             }}
             value={sourceConfig.processed.folder}

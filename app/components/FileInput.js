@@ -6,7 +6,12 @@ let unique = 1;
 const FileInput = ({ label, onChange, value }) => {
   unique += 1;
   const id = `${Math.random()}_source_file_input_${unique}`;
-
+  const addDirectory = (node) => {
+    if (node) {
+      node.directory = true;
+      node.webkitdirectory = true;
+    }
+  };
   return (
     <div>
       <TextField
@@ -25,9 +30,8 @@ const FileInput = ({ label, onChange, value }) => {
         id={id}
         onChange={e => onChange(e)}
         style={{ display: 'none' }}
+        ref={node => addDirectory(node)}
         type="file"
-        webkitdirectory="true"
-        directory="true"
       />
     </div>
   );
