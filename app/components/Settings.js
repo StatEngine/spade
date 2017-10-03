@@ -100,6 +100,7 @@ export default class Settings extends Component {
       config,
     });
   }
+
   validateSources(config, sourcesKeys) {
     /*for (let iSource = 0; iSource < sourcesKeys.length; iSource += 1) {
       const key = sourcesKeys[iSource];
@@ -141,9 +142,8 @@ export default class Settings extends Component {
       ...this.state,
       saved: true,
     });
-    if (this.validateSources() && this.validateDestinations(config, destinationsKeys)) {
-      Settings.saveConfig(config);
-    }
+
+    Settings.saveConfig(config);
 
     this.props.onUpdate(true);
     // TODO: run batch file to restart service
@@ -250,7 +250,7 @@ export default class Settings extends Component {
     return <div />;
   }
 
-  renderSources() {
+  renderSources(addNewDestination) {
     const { config } = this.state;
 
     const sourcesKeys = Object
@@ -356,23 +356,14 @@ export default class Settings extends Component {
                 floatingLabelText="Destination"
                 onChange={(e, index, value) => {
                   if (!(source.destination in config.destinations)) {
-                    // TODO; think through how we want to handle destination creation
-                    let newDestinationKey = 'destination';
-                    let i = 1;
-                    while (sourcesKeys.indexOf(newDestinationKey + i) !== -1) {
-                      i += 1;
-                    }
-                    newDestinationKey = newDestinationKey + i;
-
-                    config.destinations[newDestinationKey] = Object.assign({},
-                      this.destinationTypes[0].defaults,
-                      { uid: Math.random() }
-                    );
-                    config.destination[newDestinationKey].s3.folder = config.departmentId;
+                    const newDestinationKey = addNewDestination(destinationKeys)
                     source.destination = newDestinationKey;
                   } else {
                     source.destination = value;
                   }
+                  destination = config.destinations[source.destination];
+                  destinationTypeLabel = 'S3';
+                  destinationConfig = destination.s3;
                   this.alterSettings();
                 }}
                 value={source.destination}
@@ -426,6 +417,22 @@ export default class Settings extends Component {
   render() {
     const { config } = this.state;
     const sourcesKeys = Object.keys(config.sources);
+    const addNewDestination = (destinationKeys) => {
+      // TODO; think through how we want to handle destination creation
+      let newDestinationKey = 'destination';
+      let i = 1;
+      while (destinationKeys.indexOf(newDestinationKey + i) !== -1) {
+        i += 1;
+      }
+      newDestinationKey = newDestinationKey + i;
+
+      config.destinations[newDestinationKey] = Object.assign({},
+        this.destinationTypes[0].defaults,
+        { uid: Math.random() },
+      );
+      config.destinations[newDestinationKey].s3.folder = config.departmentId;
+      return newDestinationKey;
+    };
 
     return (
       <div style={{ margin: 'auto', maxWidth: '600px', padding: '16px 32px 32px' }}>
@@ -468,7 +475,11 @@ export default class Settings extends Component {
               let destination = null;
               if (destKeys.length !== 0) {
                 destination = destKeys[0];
+              } else {
+                const newDestinationKey = addNewDestination(destKeys);
+                destination = newDestinationKey;
               }
+
               config.sources[newSourceKey] = Object.assign({}, {
                 enabled: false,
                 // TODO: this next line would crash if no destinations
@@ -482,7 +493,7 @@ export default class Settings extends Component {
           />
         </div>
 
-        {this.renderSources()}
+        {this.renderSources(addNewDestination)}
       </div>
     );
   }
