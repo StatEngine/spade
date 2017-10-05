@@ -13,6 +13,7 @@ export default class ServiceHelper {
 
   static get EXE() {
     const p = path.join(ServiceHelper.dirname, 'spade-service.exe');
+    console.log(`----[ path to exe: "${p}"\n`);
     return `"${p}"`;
   }
 
@@ -152,7 +153,8 @@ export default class ServiceHelper {
     const exe = `"${p}"`;
     let output1 = null;
     output1 = runas(exe, [], ServiceHelper.OPS);
-    console.log('----[ addFullBat: ', output1);
+    console.log('----[ addFullBat, exe: ', exe);
+    console.log('----[ addFullBat, output: ', output1);
   }
 
   static removeFullBat() {
@@ -160,6 +162,7 @@ export default class ServiceHelper {
     const exe = `"${p}"`;
     let output1 = null;
     output1 = runas(exe, [], ServiceHelper.OPT);
-    console.log('----[ removeFullBat: ', output1);
+    console.log('----[ addFullBat, exe: ', exe);
+    console.log('----[ addFullBat, output: ', output1);
   }
 }

@@ -165,4 +165,9 @@ export default merge.smart(baseConfig, {
       openAnalyzer: process.env.OPEN_ANALYZER === 'true'
     }),
   ],
+
+  node: {
+    __dirname: false,
+    __filename: false
+  },
 });
