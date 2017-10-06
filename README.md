@@ -36,6 +36,15 @@ nm start
 To run the installed app, use the desktop shortcut. On windows 7, the path to the exe is:
 `C:\Users\<user name>\AppData\Local\Programs\spade`
 
+## Tests
+to run the tests you can run the following which will currently output to the browser console. Note that before running tests that use node modules with native dependancies (such as the sqlite tests), you have to run `rebuild-native-root-modules.sh` which are normally not built at the root level and under app instead. Before running test-mssql you want to run `export MSSQL_TEST_DB=<url>`
+```
+npm run test-core
+npm run test-mssql
+npm run test-sqlite
+```
+
+
 ## Adding dependancies
 Note that ALL packages that have native code need to be installed in the `app` folder not the root folder. This project has two `package.json` files and you need to know which to use. All dependencies under the root package json will be webpacked (condensed into one js file) but that cannot occur for modules that have native dependancies. the items under the `app` folder are skipped by the build process. when you run `clean-install.sh` all temp files are rem
 
