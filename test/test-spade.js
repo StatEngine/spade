@@ -14,7 +14,6 @@ describe('SpadeE2E', () => {
   before((done) => {
     testSpade = new Spade();
     testSpade.init('./test/configurations/test-config.json');
-    destAction = testSpade.destinations.incidents;
     // Specifically for timeout testing.
     const sourceConfig = {
       trigger: {
@@ -49,23 +48,19 @@ describe('SpadeE2E', () => {
     assert.isAbove(createdSourceKeys.length, 0, 'Source actions should have been created from test configuration');
   });
 
-  it('Should report metrics using telemetry', () => {
-    // Come back to this test once you understand telemetry more.
-  });
-
   it('Should run actions and push results to destinations', (done) => {
     // Assuming actions were created properly move a  testJson file into watch
     const fileBuffer = fs.readFileSync('./test/data/testjson.json');
 
     try {
-      fs.writeFileSync('./test/data/testFolder/testJson.json', fileBuffer);
+      fs.writeFileSync('./test/data/testFolder/testjson.json', fileBuffer);
     } catch (e) {
       console.log('Unable to write File');
     }
 
     setTimeout(() => {
-      assert.equal(fs.existsSync('./test/data/testFolder/testJson.json'), false);
-      assert.equal(fs.existsSync('./test/data/testFolder/processed/testJson.json'), true);
+      assert.equal(fs.existsSync('./test/data/testFolder/testjson.json'), false);
+      assert.equal(fs.existsSync('./test/data/testFolder/processed/testjson.json'), true);
       done();
     }, 1000);
   });
@@ -74,16 +69,16 @@ describe('SpadeE2E', () => {
     const fileBuffer = fs.readFileSync('./test/data/testjson.json');
 
     try {
-      fs.writeFileSync('Z:\\testJson.json', fileBuffer);
+      fs.writeFileSync('Z:\\testjson.json', fileBuffer);
     } catch (e) {
       console.log('Unable to write File');
     }
 
     setTimeout(() => {
-      assert.equal(fs.existsSync('Z:\\testJson.json'), false);
-      assert.equal(fs.existsSync('Z:\\processed\\testJson.json'), true);
+      assert.equal(fs.existsSync('Z:\\testjson.json'), false);
+      assert.equal(fs.existsSync('Z:\\processed\\testjson.json'), true);
       done();
-    }, 1400);
+    }, 1700);
   });
 
   it('Should wait for first job to finish before running the next scheduled job', (done) => {
