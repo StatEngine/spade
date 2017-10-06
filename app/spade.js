@@ -6,7 +6,6 @@ import DestinationStdOutAction from './destination-stdout-action';
 import DestinationFileAction from './destination-file-action';
 import SourceFileWatchAction from './source-file-watch-action';
 import SourceSqliteAction from './source-sqlite-action';
-import SourceFfxAction from './source-ffx-action';
 import Reporter from './reporter';
 import gitState from './git-state.json';
 import appPackage from './package.json';
@@ -196,8 +195,6 @@ export class Spade {
           sourceAction = new SourceFileWatchAction(conf, destinationAction);
         } else if (conf.sqlite) {
           sourceAction = new SourceSqliteAction(conf, destinationAction);
-        } else if (conf.ffx) {
-          sourceAction = new SourceFfxAction(conf, destinationAction);
         } else {
           console.log('====[ Source action Type not supported: ', conf);
         }
