@@ -70,21 +70,21 @@ export default class SourceFfxAction extends SourceAction {
       CAST(SUBSTRING(dbo.agency_event.tr_ts, 1, 4) + '-' + SUBSTRING(dbo.agency_event.tr_ts, 5, 2) + '-' + SUBSTRING(dbo.agency_event.tr_ts, 7, 2) + ' ' + SUBSTRING(dbo.agency_event.tr_ts, 9, 2) + ':' + SUBSTRING(dbo.agency_event.tr_ts, 11, 2) + ':' + SUBSTRING(dbo.agency_event.tr_ts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS first_transport_ts,
       CAST(SUBSTRING(dbo.agency_event.ta_ts, 1, 4) + '-' + SUBSTRING(dbo.agency_event.ta_ts, 5, 2) + '-' + SUBSTRING(dbo.agency_event.ta_ts, 7, 2) + ' ' + SUBSTRING(dbo.agency_event.ta_ts, 9, 2) + ':' + SUBSTRING(dbo.agency_event.ta_ts, 11, 2) + ':' + SUBSTRING(dbo.agency_event.ta_ts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS first_trans_ar_ts,
       CAST(SUBSTRING(dbo.agency_event.xdts, 1, 4) + '-' + sUBSTRING(dbo.agency_event.xdts, 5, 2) + '-' + SUBSTRING(dbo.agency_event.xdts, 7, 2) + ' ' + SUBSTRING(dbo.agency_event.xdts, 9, 2) + ':' + SUBSTRING(dbo.agency_event.xdts, 11, 2) + ':' + SUBSTRING(dbo.agency_event.xdts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS last_unit_close_ts,
+      CAST(SUBSTRING(dbo.agency_event.cdts, 1, 4) + '-' + sUBSTRING(dbo.agency_event.cdts, 5, 2) + '-' + SUBSTRING(dbo.agency_event.cdts, 7, 2) + ' ' + SUBSTRING(dbo.agency_event.cdts, 9, 2) + ':' + SUBSTRING(dbo.agency_event.cdts, 11, 2) + ':' + SUBSTRING(dbo.agency_event.cdts, 13, 2) AS datetime) AT TIME ZONE 'Eastern Standard Time' AS event_opened,
       dbo.agency_event.xcmt AS closing_cmt,
       dbo.agency_event.tycod AS event_type,
       dbo.agency_event.typ_eng AS event_type_descr,
       dbo.FFX_ICAD_Types.Event_Code AS event_type_code,
       dbo.FFX_ICAD_Types.EMS_Type,
       dbo.FFX_ICAD_Types.Reportable,
-      dbo.common_event.cdts AS employee_key,
       dbo.FFX_ICAD_Types.SpecialOperations,
       dbo.agency_event.is_open,
       dbo.agency_event.open_and_curent
       FROM  dbo.agency_event
       INNER JOIN dbo.common_event ON dbo.agency_event.eid = dbo.common_event.eid
       LEFT JOIN dbo.FFX_ICAD_Types ON dbo.agency_event.tycod = dbo.FFX_ICAD_Types.Evt_Typ
-      WHERE dbo.common_event.eid=@eid
-      ORDER BY dbo.agency_event.sdts
+      WHERE dbo.agency_event.eid=@eid
+      ORDER BY dbo.agency_event.cdts
       `, 'event', [['eid', sql.Int, id]]);
   }
 
@@ -188,9 +188,11 @@ export default class SourceFfxAction extends SourceAction {
 
   static findNewIncidents() {
     const request = new sql.Request();
-    return request.query(`SELECT eid
+    return request.query(`SELECT agency_event.eid
       FROM agency_event
-      WHERE eid NOT IN (SELECT event_id FROM spade_log WHERE closed=1)`);
+      WHERE agency_event.eid NOT IN (SELECT event_id FROM spade_log WHERE closed=1)
+      AND agency_event.eid IN (select agency_event.eid from agency_event inner join common_event on agency_event.eid=common_event.eid)
+      AND substring(agency_event.cdts, 0, 09)='20170101';`);
   }
 
   static logIncident(eventId, closed) {
@@ -229,11 +231,18 @@ export default class SourceFfxAction extends SourceAction {
       .then(SourceFfxAction.findNewIncidents)
       .then((ids) => {
         return Promise.map(ids.recordsets[0], (id) => {
+          console.log(`Processing: ${id.eid};`)
           return SourceFfxAction.processIncident(id.eid)
           .then((res) => {
             const merged = _.assign(...res);
+            if (!merged.event.event_num) {
+              console.log(`Event has no event_number: ${id.eid} -> res: ${JSON.stringify(res, undefined, 2)}`);
+              return SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0);
+            }
             return self.destination.run(`${merged.event.event_num}.json`, merged)
               .then(() => SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0));
+          }).catch(e => {
+            console.log(`Error processing: ${id.eid}, ${e.message}.`)
           });
         }, { concurrency: 10 });
       })
