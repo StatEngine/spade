@@ -16,6 +16,7 @@ import MenuBuilder from './menu';
 import reporter from './reporter';
 import tray from './tray';
 import spade from './spade';
+import serviceHelper from './service-helper';
 
 let mainWindow = null;
 let quitApp = false;
@@ -100,6 +101,7 @@ export default function init() {
   }
 
   console.log('~~~~[ Application Info: ');
+  console.log('        serviceHelper.appMode: ', serviceHelper.appMode());
   console.log('        mode: ', mode);
   console.log('        modeDevelopment: ', modeDevelopment);
   console.log('        modeProduction: ', modeProduction);
@@ -138,6 +140,12 @@ export default function init() {
     });
 
     mainWindow.on('close', (e) => {
+      // if we are just closing the window, but app is not in installed mode
+      // quite the app as well. meant for developers... 
+      if (serviceHelper.appMode() !== 'installed') {
+        app.quit();
+      }
+
       if (quitApp) {
         // the user tried to quit the app as opposed closing windows
         mainWindow = null;

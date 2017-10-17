@@ -13,7 +13,7 @@ export default class ServiceHelper {
 
   static get EXE() {
     const p = path.join(ServiceHelper.dirname, 'spade-service.exe');
-    console.log(`----[ path to exe: "${p}"\n`);
+    //console.log(`----[ path to exe: "${p}"\n`);
     return `"${p}"`;
   }
 
@@ -93,8 +93,10 @@ export default class ServiceHelper {
       status = status.toString('utf8').trim();
     } catch (e) {
       status = 'Invalid'
+      console.log(`----[ status: ${status}\n`);
+      console.log(new Error().stack);
     }
-    console.log(`----[ status: ${status}\n`);
+    //console.log(`----[ status: ${status}\n`);
     return status;
   }
 
