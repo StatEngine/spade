@@ -1,55 +1,29 @@
 {
   "sources": {
     "cadDb": {
-      "enabled": false,
+      "enabled": true,
       "destination": "incidents",
       "trigger": {
         "schedule": "*/1 * * * *"
       },
-      "sqlite": {
-        "user": "username",
-        "password": "my-password",
-        "server": "localhost",
-        "database": "data",
-        "tables": [
-          {
-            "name": "Response_Master_Incident",
-            "sortKey": "Master_Incident_Number"
-          }
-        ],
+      "ffx": {
+        "user": "uaWs1QvzvqOazBAT",
+        "password": "vgi5h8q0Mdie7VW9",
+        "server": "ffx.test.statengine.io",
+        "database": "dN7TWaWlqfJnxx7c",
+        "port": 59380,
+        "requestTimeout": 60000,
         "options": {
           "encrypt": true
-        }
-      }
-    },
-    "otherFiles": {
-      "enabled": true,
-      "destination": "incidents",
-      "fileWatch": {
-        "folder": "C:/Users/Admin/Documents/spade_new/other-folder",
-        "processed": {
-          "folder": "./processed"
-        }
-      }
-    },
-    "cadFiles": {
-      "enabled": true,
-      "destination": "incidents",
-      "fileWatch": {
-        "folder": "C:/Users/Admin/Documents/spade_new/cad-folder",
-        "processed": {
-          "folder": "./processed"
         }
       }
     }
   },
   "destinations": {
     "incidents": {
-      "s3": {
-        "bucket": "departments",
-        "folder": "my-folder",
-        "accessKeyId": "my-username",
-        "secretAccessKey": "JKHVGCJC"
+      "fs": {
+        "pretty": true,
+        "folder": "/Users/syrusm/dev/stat-engine/departments/ffx/incidents"
       }
     }
   },
