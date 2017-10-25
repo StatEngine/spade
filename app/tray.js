@@ -24,11 +24,11 @@ class TrayControl {
 
     this.iconTray = path.join(__dirname, 'images',
       this.icons[process.platform].dir, this.icons[process.platform].icon ||
-      'tray-on.ico');
+      'icon-trayTemplate.png');
 
     this.iconTrayAlert = path.join(__dirname, 'images',
       this.icons[process.platform].dir, this.icons[process.platform].iconAlert ||
-      'tray-off.ico');
+      'icon-tray-alert.png');
 
     console.log('----[ this.iconTray: ', this.iconTray);
 
