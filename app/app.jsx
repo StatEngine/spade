@@ -26,6 +26,7 @@ export default class App extends React.Component {
       fileWatch: 'File Watch',
       mssql: 'MS SQL',
       sqlite: 'SQLite',
+      ffx: 'Fairfax',
     };
 
     this.destinationTypes = {
@@ -199,7 +200,7 @@ export default class App extends React.Component {
             />
           </div>
         );
-      } else if (task.source.type === 'mssql' || task.source.type === 'sqlite') {
+      } else if (task.source.type === 'mssql' || task.source.type === 'sqlite'  || task.source.type === 'ffx') {
         sourceInputs = (
           <div>
             <TextField

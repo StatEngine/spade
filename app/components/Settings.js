@@ -76,6 +76,7 @@ export default class Settings extends Component {
       { key: 'fileWatch', label: 'File Watch', defaults: { folder: '', processed: { folder: '' } } },
       { key: 'mssql', label: 'MS SQL', defaults: { user: '', password: '', server: '', database: '', tables: [] } },
       { key: 'sqlite', label: 'SQLite', defaults: { user: '', password: '', server: '', database: '', tables: [], options: { encrypt: true } } },
+      { key: 'ffx', label: 'Fairfax', defaults: { user: '', password: '', server: '', database: '', port: 59380, requestTimeout: 60000, options: { encrypt: true } } },
     ];
 
     this.destinationTypes = [
