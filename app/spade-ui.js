@@ -108,6 +108,7 @@ export default function init() {
   console.log('        modeInstalled: ', modeInstalled);
   console.log('        __dirname: ', dirname);
   console.log('        app.getAppPath: ', appPath);
+  console.log('        env: ', process.env);
 
   if (modeCounter !== 1 &&
     // when in installed mode, production flag is also true, which is okay
@@ -141,7 +142,7 @@ export default function init() {
 
     mainWindow.on('close', (e) => {
       // if we are just closing the window, but app is not in installed mode
-      // quite the app as well. meant for developers... 
+      // quite the app as well. meant for developers...
       if (serviceHelper.appMode() !== 'installed') {
         app.quit();
       }
