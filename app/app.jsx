@@ -30,6 +30,7 @@ export default class App extends React.Component {
 
     this.destinationTypes = {
       s3: 'S3',
+      file: 'Local Folder',
     };
 
     // if (this.state.sourceFolder !== '') {
@@ -241,6 +242,26 @@ export default class App extends React.Component {
               }}
             /><br />
 
+            <TextField
+              key="source-port"
+              floatingLabelText="Port"
+              value={task.source.port}
+              onChange={(e) => {
+                task.source.port = e.target.value;
+                this.forceUpdate();
+              }}
+            /><br />
+
+            <TextField
+              key="source-timeout"
+              floatingLabelText="Request Timeout"
+              value={task.source.requestTimeout}
+              onChange={(e) => {
+                task.source.requestTimeout = e.target.value;
+                this.forceUpdate();
+              }}
+            /><br />
+
             <br />
 
             <div style={{ display: 'inline-block' }}>
@@ -287,6 +308,47 @@ export default class App extends React.Component {
                 this.forceUpdate();
               }}
             /><br />
+          </div>
+        );
+      } else if (task.destination.type === 'fs') {
+        destinationInputs = (
+          <div>
+            <TextField
+              key="folder"
+              floatingLabelText="Folder"
+              value={task.destination.folder}
+              style={{ marginRight: '10px' }}
+              onChange={(e) => {
+                task.destination.folder = e.target.value;
+                this.forceUpdate();
+              }}
+            />
+            <FlatButton
+              label="Browse..."
+              onClick={() => {
+                document.getElementById(`${task.uid}-destination-file-input`).click();
+              }}
+            />
+            <input
+              id={`${task.uid}-destination-file-input`}
+              type="file"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                task.destination.folder = e.target.value;
+                this.forceUpdate();
+              }}
+            /><br />
+
+            <div style={{ display: 'inline-block' }}>
+              <Toggle
+                label="Pretty Format"
+                value={task.destination.pretty}
+                onChange={(e) => {
+                  task.destination.pretty = e.target.value;
+                  this.forceUpdate();
+                }}
+              />
+            </div>
           </div>
         );
       }
@@ -395,27 +457,3 @@ export default class App extends React.Component {
       </MuiThemeProvider>);
   }
 }
-
-/**
-<RaisedButton
-  label="Choose a source directory"
-  labelPosition="before"
-  containerElement="label"
-  onClick={this.chooseSource.bind(this)}
-/>
-
-
- <RaisedButton
- containerElement='label' // <-- Just add me!
- label='source'>
- <input type="file" />
- </RaisedButton><br />
-
- //e.target.value
- //const formData = {};
- //for (const field in this.refs) {
- //  formData[field] = this.refs[field].value;
- //  Settings.set(field, formData[field]);
- //}
-
- */

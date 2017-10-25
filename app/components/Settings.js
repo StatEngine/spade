@@ -34,7 +34,7 @@ export default class Settings extends Component {
     try {
       result = Object.assign(result, JSON.parse(fs.readFileSync(configPath)));
     } catch (e) {
-      console.log(`ERROR: Unable to load config file: "${configPath}". ${e}`)
+      console.log(`ERROR: Unable to load config file: "${configPath}". ${e}`);
     }
     return result;
   }
@@ -79,7 +79,8 @@ export default class Settings extends Component {
     ];
 
     this.destinationTypes = [
-      { key: 'create_s3', label: 'New S3 Connection', defaults: { s3: { bucket: 'departments', folder: '', accessKeyId: '', secretAccessKey: '' } } },
+      { key: 's3', label: 'S3', defaults: { bucket: 'departments', folder: '', accessKeyId: '', secretAccessKey: '' } },
+      { key: 'fs', label: 'File System', defaults: { pretty: true, folder: '' } },
     ];
 
     // if (this.state.sourceFolder !== '') {
@@ -130,6 +131,7 @@ export default class Settings extends Component {
     */
     return true;
   }
+
   alterSettings() {
     const config = JSON.parse(JSON.stringify(this.state.config));
     const sourcesKeys = Object.keys(config.sources);
@@ -157,7 +159,7 @@ export default class Settings extends Component {
 
   handleNotificationClose() {
     this.setState({
-      saved: false
+      saved: false,
     });
   }
 
@@ -261,21 +263,118 @@ export default class Settings extends Component {
       .keys(config.destinations)
       .sort((a, b) => config.destinations[a].uid - config.destinations[b].uid);
 
-    return sourcesKeys.map((sourceKey, index) => {
+    return sourcesKeys.map((sourceKey) => {
       const source = config.sources[sourceKey];
       const schedule = 'trigger' in source ? source.trigger.schedule : null;
       const interval = Settings.intervalFromCron(schedule);
       const sourceType = this.extractSourceType(source);
       const sourceTypeLabel = this.sourceTypes.find(st => st.key === sourceType).label;
 
-      let destination;
-      let destinationTypeLabel;
-      let destinationConfig = this.destinationTypes[0].defaults.s3;
-      if (source.destination in config.destinations) {
-        // TODO: this can't assume 's3' in the future, build a more robust solution
-        destination = config.destinations[source.destination];
-        destinationTypeLabel = 'S3';
-        destinationConfig = destination.s3;
+      const destinationKey = source.destination;
+      let destination = config.destinations[destinationKey];
+      let destinationType = this.destinationTypes.filter(t => t.key in destination)[0].key;
+      let destinationTypeLabel = this.destinationTypes.find(t => t.key === destinationType).label;
+      let destinationConfig = this.destinationTypes.find(t => t.key === destinationType).defaults;
+
+      const destinationElements = [];
+
+      destinationElements.push(
+        <SelectField
+          floatingLabelText="Destination"
+          onChange={(e, index, destinationKeyOrType) => {
+            // if it is a destinationKey (of an existing destination)
+            if (destinationKeyOrType in config.destinations) {
+              source.destination = destinationKeyOrType;
+              destinationType = this.destinationTypes.filter(t => t.key in
+                destination)[0].key;
+            } else {
+              // it is a destination type
+              const newDestinationKey = addNewDestination(destinationKeys, destinationKeyOrType);
+              source.destination = newDestinationKey;
+              destinationType = destinationKeyOrType;
+            }
+            destination = config.destinations[source.destination];
+            destinationTypeLabel = this.destinationTypes.find(t => t.key ===
+              destinationType).label;
+            destinationConfig = this.destinationTypes.find(t => t.key ===
+              destinationType).defaults;
+            this.alterSettings();
+          }}
+          value={source.destination}
+        >
+          {destinationKeys.map(key =>
+            <MenuItem key={key} value={key} primaryText={key} />,
+          )}
+
+          <Divider />
+
+          {this.destinationTypes.map(({ key, label }) =>
+            <MenuItem key={key} value={key} primaryText={`New ${label}`} />,
+          )}
+        </SelectField>,
+      );
+
+      if (destinationType === 's3') {
+        destinationElements.push(
+          <div>
+            <TextField
+              floatingLabelText="Folder"
+              value={destinationConfig.folder}
+              onChange={(e) => {
+                destinationConfig.folder = e.target.value;
+                this.alterSettings();
+              }}
+            /><br />
+
+            <TextField
+              floatingLabelText="Access Key ID"
+              value={destinationConfig.accessKeyId}
+              onChange={(e) => {
+                destinationConfig.accessKeyId = e.target.value;
+                this.alterSettings();
+              }}
+            /><br />
+
+            <TextField
+              floatingLabelText="Secret Access Key"
+              value={destinationConfig.secretAccessKey}
+              onChange={(e) => {
+                destinationConfig.secretAccessKey = e.target.value;
+                this.alterSettings();
+              }}
+            /><br />
+          </div>,
+        );
+      } else if (destinationType === 'fs') {
+        destinationElements.push(
+          <div>
+            <TextField
+              floatingLabelText="Folder"
+              value={destinationConfig.folder}
+              onChange={(e) => {
+                destinationConfig.folder = e.target.value;
+                this.alterSettings();
+              }}
+            /><br />
+
+            <div style={{ display: 'inline-block' }}>
+              <Toggle
+                label="Pretty Print"
+                onToggle={(e, isInputChecked) => {
+                  destinationConfig.pretty = isInputChecked;
+                  this.alterSettings();
+                }}
+                toggled={destinationConfig.pretty}
+              />
+            </div>
+          </div>,
+        );
+      } else {
+        destinationElements.push(
+          <div>
+            unknowsn destination type
+          </div>,
+        );
       }
 
       return (
@@ -344,7 +443,7 @@ export default class Settings extends Component {
                 value={sourceType}
               >
                 {this.sourceTypes.map(({ key, label }) =>
-                  <MenuItem key={key} value={key} primaryText={label} />
+                  <MenuItem key={key} value={key} primaryText={label} />,
                 )}
               </SelectField>
 
@@ -352,61 +451,7 @@ export default class Settings extends Component {
             </div>
 
             <div style={{ margin: '20px 0' }}>
-              <SelectField
-                floatingLabelText="Destination"
-                onChange={(e, index, value) => {
-                  if (!(source.destination in config.destinations)) {
-                    const newDestinationKey = addNewDestination(destinationKeys)
-                    source.destination = newDestinationKey;
-                  } else {
-                    source.destination = value;
-                  }
-                  destination = config.destinations[source.destination];
-                  destinationTypeLabel = 'S3';
-                  destinationConfig = destination.s3;
-                  this.alterSettings();
-                }}
-                value={source.destination}
-              >
-                {destinationKeys.map(key =>
-                  <MenuItem key={key} value={key} primaryText={key} />
-                )}
-
-                <Divider />
-
-                {this.destinationTypes.map(({ key, label }) =>
-                  <MenuItem key={key} value={key} primaryText={label} />
-                )}
-              </SelectField>
-
-              <div>
-                <TextField
-                  floatingLabelText="Folder"
-                  value={destinationConfig.folder}
-                  onChange={(e) => {
-                    destinationConfig.folder = e.target.value;
-                    this.alterSettings();
-                  }}
-                /><br />
-
-                <TextField
-                  floatingLabelText="Access Key ID"
-                  value={destinationConfig.accessKeyId}
-                  onChange={(e) => {
-                    destinationConfig.accessKeyId = e.target.value;
-                    this.alterSettings();
-                  }}
-                /><br />
-
-                <TextField
-                  floatingLabelText="Secret Access Key"
-                  value={destinationConfig.secretAccessKey}
-                  onChange={(e) => {
-                    destinationConfig.secretAccessKey = e.target.value;
-                    this.alterSettings();
-                  }}
-                /><br />
-              </div>
+              {destinationElements}
             </div>
           </CardText>
         </Card>
@@ -417,22 +462,36 @@ export default class Settings extends Component {
   render() {
     const { config } = this.state;
     const sourcesKeys = Object.keys(config.sources);
-    const addNewDestination = (destinationKeys) => {
+    const addNewDestination = (destinationKeys, dstType) => {
+      let destinationType = dstType;
+      if (!destinationType) {
+        destinationType = 'fs';
+      }
+      const destinationTypeLabel = this.destinationTypes.find(t => t.key ===
+        destinationType).label;
+
       // TODO; think through how we want to handle destination creation
-      let newDestinationKey = 'destination';
+      let newDestinationKey = `${destinationTypeLabel}-`;
       let i = 1;
       while (destinationKeys.indexOf(newDestinationKey + i) !== -1) {
         i += 1;
       }
-      newDestinationKey = newDestinationKey + i;
+      newDestinationKey += i;
 
+      const dest = {};
+      dest[destinationType] = this.destinationTypes.find(t => t.key === destinationType).defaults;
       config.destinations[newDestinationKey] = Object.assign({},
-        this.destinationTypes[0].defaults,
+        dest,
         {
-          uid: Math.random(),
-          s3: { folder: config.departmentId },
+          // TODO: Warning! ensure uniqueness
+          uid: Math.floor(Math.random() * 10000000000),
         },
       );
+
+      if (destinationType === 's3') {
+        config.destinations[newDestinationKey][destinationType].folder = config.departmentId;
+      }
+
       return newDestinationKey;
     };
 
