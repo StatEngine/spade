@@ -13,7 +13,9 @@ rm -rf ./dll
 rc2=$?
 rm -rf ./release
 rc3=$?
-if [ $rc != 0 ] || [ $rc2 != 0 ] || [ $rc3 != 0 ] ; then
+rm -rf ./app/dist
+rc4=$?
+if [ $rc != 0 ] || [ $rc2 != 0 ] || [ $rc3 != 0 ] || [ $rc4 != 0 ] ; then
     echo "====[ Error: Failed to remove temp dirs"
     exit $rc
 fi
