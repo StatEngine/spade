@@ -15,7 +15,6 @@ import path from 'path';
 import MenuBuilder from './menu';
 import reporter from './reporter';
 import tray from './tray';
-import spade from './spade';
 import serviceHelper from './service-helper';
 
 let mainWindow = null;
@@ -177,7 +176,8 @@ export default function init() {
       const menuBuilder = new MenuBuilder(mainWindow);
       menuBuilder.buildMenu();
 
-      spade.init();
+      // NOTE: service couldbe initialized here but then it wont run on the render thread.
+      // index.js is starting the spade-service when not in "installed mode"
     });
   });
 

@@ -6,12 +6,12 @@ import Reporter from './reporter';
 export default class DestinationFileAction extends DestinationAction {
   constructor(config) {
     super(config);
-    this.folder = config.file.folder;
-    this.pretty = config.file.pretty || false;
+    this.folder = config.fs.folder;
+    this.pretty = config.fs.pretty || false;
     console.log('DestinationFileAction.constructor: ', this.config);
   }
 
-  init(){
+  init() {
     Reporter.sendEvent('DestinationFileAction', 'init', 'core.actions');
   }
 
@@ -23,7 +23,7 @@ export default class DestinationFileAction extends DestinationAction {
           reject(err);
         }
 
-        console.log(`DestinationFileAction.run: File written: ${output}.`)
+        console.log(`DestinationFileAction.run: File written: ${output}.`);
         resolve(output);
       });
     });

@@ -172,7 +172,7 @@ export class Spade {
         action = new DestinationS3Action(conf);
       } else if (conf.stdout) {
         action = new DestinationStdOutAction(conf);
-      } else if (conf.file) {
+      } else if (conf.fs) {
         action = new DestinationFileAction(conf);
       }
 

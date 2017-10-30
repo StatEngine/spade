@@ -92,11 +92,9 @@ export default class ServiceHelper {
       status = childProcess.execSync(`${ServiceHelper.EXE} status`);
       status = status.toString('utf8').trim();
     } catch (e) {
-      status = 'Invalid'
+      status = 'Invalid';
       console.log(`----[ status: ${status}\n`);
-      console.log(new Error().stack);
     }
-    //console.log(`----[ status: ${status}\n`);
     return status;
   }
 

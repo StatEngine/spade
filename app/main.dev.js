@@ -15,7 +15,8 @@ function usage() {
   console.log('Usage: spade -- [ options ]');
   console.log('       (note the extra --) ');
   console.log('Options:');
-  console.log(' --service        run as a service / without ui');
+  console.log(' --service        run as a service without ui');
+  console.log(' --ui             show the ui, AND run the service portion on the render thread ONLY when not in "installed" mode.');
   console.log(' --help           print usage');
 }
 

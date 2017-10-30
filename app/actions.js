@@ -72,6 +72,9 @@ export class SourceAction {
     this.status = 'CREATED';
     this.error = null;
     this.destination = destinationAction;
+    this.timeRunStart = null;
+    this.counterRunScheduleTriggered = 0;
+    this.counterRunResolved = 0;
 
     let privateIsRunning = false;
     this.getRunning = function () { // eslint-disable-line func-names
@@ -88,17 +91,33 @@ export class SourceAction {
     this.startSchedule = function (test = false) { // eslint-disable-line func-names\
       const self = this;
       const runLambda = () => {
+        this.counterRunScheduleTriggered += 1;
+        console.log(`----[ runLambda, counter: ${this.counterRunScheduleTriggered}, time: ${Date.now()}`);
         if (!self.getRunning()) {
           self.setRunning(true);
           self.run()
+          .then(() => {
+            this.counterRunResolved += 1;
+          })
           .catch((e) => {
-            console.log('====[ action run failed. ', self.config);
-            console.log(`====[ action failure message: ${e.message}`);
+            console.log('====[ action.run.catch, counterRunResolved: ',
+              this.counterRunResolved, self.config);
+            console.log(`====[ action.run.CATCH failure message: ${
+              e && e.message ? e.message : e}`);
+            console.log('----[ stack: ', new Error().stack);
             self.setError(e);
           })
-          .finally(() => { self.setRunning(false); });
+          .error((e) => {
+            console.log(`====[ action.run.ERROR failure message: ${
+              e && e.message ? e.message : e}`);
+            console.log('----[ stack: ', new Error().stack);
+          })
+          .finally(() => {
+            self.setRunning(false);
+          });
         } else {
-          console.log('~~~~[ previous run not completed yet!', this.config);
+          console.log('~~~~[ previous run not completed yet! counterRunResolved: ',
+           this.counterRunResolved, this.config);
         }
       };
 
@@ -174,7 +193,15 @@ export class SourceAction {
   run() {
     console.log('SourceAction.run: ', this.config);
     return new Promise((resolve, reject) => {
-      resolve(true);
+      if (true) {
+        resolve(true);
+      } else {
+        reject();
+      }
+    }).catch((err) => {
+      console.log('====[ SourceFfxAction.run.catch err: ', err);
+    }).finally(() => {
+      console.log('====[ SourceFfxAction.run.finally');
     });
   }
 
