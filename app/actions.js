@@ -74,6 +74,7 @@ export class SourceAction {
     this.destination = destinationAction;
     this.timeRunStart = null;
     this.counterRunScheduleTriggered = 0;
+    this.timeRunScheduleTriggered = null;
     this.counterRunResolved = 0;
 
     let privateIsRunning = false;
@@ -92,12 +93,14 @@ export class SourceAction {
       const self = this;
       const runLambda = () => {
         this.counterRunScheduleTriggered += 1;
-        console.log(`----[ runLambda, counter: ${this.counterRunScheduleTriggered}, time: ${Date.now()}`);
+        this.timeRunScheduleTriggered = Date.now();
+        console.log(`----[ SourceAction.runLambda, Enter. counter: ${this.counterRunScheduleTriggered}, time: ${this.timeRunScheduleTriggered}`);
         if (!self.getRunning()) {
           self.setRunning(true);
           self.run()
           .then(() => {
             this.counterRunResolved += 1;
+            console.log(`----[ SourceAction.runLambda, Resoled. counter: ${this.counterRunScheduleTriggered}, duration: ${Date.now() - this.timeRunScheduleTriggered}`);
           })
           .catch((e) => {
             console.log('====[ action.run.catch, counterRunResolved: ',
