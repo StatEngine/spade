@@ -5,6 +5,8 @@ import { SourceAction } from './actions';
 
 sql.Promise = require('bluebird');
 
+let pool = null;
+
 export default class SourceFfxAction extends SourceAction {
   constructor(config, destination) {
     super(config, destination);
@@ -16,7 +18,7 @@ export default class SourceFfxAction extends SourceAction {
   }
 
   static query(query, key, inputs = []) {
-    const request = new sql.Request();
+    const request = pool.request();
 
     inputs.forEach((args) => {
       request.input(...args);
@@ -178,17 +180,42 @@ export default class SourceFfxAction extends SourceAction {
   }
 
   static processIncident(id) {
+    const p1 = SourceFfxAction.getEvent(id);
+    const p2 = SourceFfxAction.getApparatus(id);
+    const p3 = SourceFfxAction.getPersonnel(id);
+    const p4 = SourceFfxAction.getTimes(id);
+
+    console.time('p1');
+    p1.then(() => {
+      console.timeEnd('p1');
+    });
+
+    console.time('p2');
+    p2.then(() => {
+      console.timeEnd('p2');
+    });
+
+    console.time('p3');
+    p3.then(() => {
+      console.timeEnd('p3');
+    });
+
+    console.time('p4');
+    p4.then(() => {
+      console.timeEnd('p4');
+    });
+
     return Promise.all([
-      SourceFfxAction.getEvent(id),
-      SourceFfxAction.getApparatus(id),
-      SourceFfxAction.getPersonnel('un_hi_persl', id),
-      SourceFfxAction.getTimes(id),
+      p1,
+      p2,
+      p3,
+      p4,
     ]);
   }
 
   static findNewIncidents() {
-    const request = new sql.Request();
-    return request.query(`SELECT agency_event.eid
+    // TODO: improve query
+    return pool.request().query(`SELECT agency_event.eid
       FROM agency_event
       WHERE agency_event.eid IN (select agency_event.eid from agency_event inner join common_event on agency_event.eid=common_event.eid)
       AND substring(agency_event.cdts, 0, 09)='20170101' AND agency_event.eid NOT IN (SELECT spade_log.event_id FROM spade_log);`);
@@ -203,10 +230,9 @@ export default class SourceFfxAction extends SourceAction {
       SET closed=@closed,updated_at=CURRENT_TIMESTAMP
       WHERE event_id=@event_id`;
 
-    const request = new sql.Request();
+    const request = pool.request();
     request.input('event_id', sql.Int, eventId);
     request.input('closed', sql.Bit, closed);
-
     return request.query(query);
   }
 
@@ -218,37 +244,92 @@ export default class SourceFfxAction extends SourceAction {
         updated_at datetime default CURRENT_TIMESTAMP,
         closed bit default 0
     )`;
-    const request = new sql.Request();
-    return request.query(query)
+    return pool.request().query(query);
   }
 
-  run() {
-    console.log('----[ SourceFfxAction.run start');
-    const self = this;
-    return sql.connect(this.config.ffx)
-      .then(SourceFfxAction.createLogTable)
-      .then(SourceFfxAction.findNewIncidents)
-      .then((ids) => {
+  static testSingleEvent(self) {
+    const eid = 8162192;
+    console.time('processIncident');
+    return SourceFfxAction.processIncident(eid).then((res) => {
+      console.timeEnd('processIncident');
+      const merged = _.assign(...res);
+      if (!merged.event.event_num) {
+        console.log(`Event has no event_number: ${eid} -> res: ${JSON.stringify(res, undefined, 2)}`);
+        return SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0);
+      }
+      console.time('self.destination.run');
+      return self.destination.run(`${merged.event.event_num}.json`, merged)
+        .then(() => {
+          console.timeEnd('self.destination.run');
+          return SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0);
+        });
+    });
+  }
+
+  static processNewEvents(self) {
+    return SourceFfxAction.createLogTable().then(SourceFfxAction.findNewIncidents)
+    .then((ids) => {
+      if (ids.recordsets[0] && ids.recordsets[0].length > 0) {
         return Promise.map(ids.recordsets[0], (id) => {
-          console.log(`Processing: ${id.eid};`)
+          console.log(`Processing: ${id.eid};`);
+          console.time(`event-TOTAL-${id.eid}`);
           return SourceFfxAction.processIncident(id.eid)
           .then((res) => {
             const merged = _.assign(...res);
             if (!merged.event.event_num) {
               console.log(`Event has no event_number: ${id.eid} -> res: ${JSON.stringify(res, undefined, 2)}`);
-              return SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0);
+              const p = SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0);
+              p.then(() => {
+                console.timeEnd(`event-TOTAL-${id.eid}`);
+              });
+              return p;
             }
             return self.destination.run(`${merged.event.event_num}.json`, merged)
-              .then(() => SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0));
-          }).catch(e => {
-            console.log(`Error processing: ${id.eid}, ${e.message}.`)
+              .then(() => {
+                const p = SourceFfxAction.logIncident(merged.event.event_id, merged.event.is_open === 'F' ? 1 : 0);
+                p.then(() => {
+                  console.timeEnd(`event-TOTAL-${id.eid}`);
+                });
+                return p;
+              });
+          })
+          .catch((e) => {
+            console.log(`====[ Error processing: ${id.eid}, ${e.message}., ${e.stack}`);
           });
-        }, { concurrency: 10 });
-      })
-      .finally(sql.close);
+        }, { concurrency: 1 });
+      }
+      // if there is no more results just resolve
+      return Promise.resolve();
+    });
+  }
+
+  run() {
+    const func = SourceFfxAction.processNewEvents;
+    const self = this;
+
+    if (!pool) {
+      return new Promise((resolve, reject) => {
+        sql.connect(this.config.ffx).then((p) => {
+          pool = p;
+          resolve();
+          return func(self);
+        })
+        .catch((e) => {
+          console.log('====[ SourceFfxAction.run catch: ', e);
+          reject(e);
+        })
+        .error((e) => {
+          console.log('====[ SourceFfxAction.run error: ', e);
+          reject(e);
+        });
+      });
+    }
+
+    return func(self);
   }
 
   finalize() {
     console.log('SourceFfxAction.finalize: ', this.config);
+    pool.close();
   }
 }
