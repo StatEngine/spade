@@ -45,14 +45,17 @@ class TrayControl {
     }
     this.mainWindow.tray = tray;
 
-    setInterval(() => {
-      const status = serviceHelper.status();
-      if (status !== this.lastStatus) {
-        const icon = status !== 'Started' ? this.iconTrayAlert : this.iconTray;
-        this.mainWindow.tray.setImage(icon);
-        this.lastStatus = status;
-      }
-    }, 5000);
+    // only update the status on tray if we are running in installed mode
+    if (serviceHelper.appMode() === 'installed') {
+      setInterval(() => {
+        const status = serviceHelper.status();
+        if (status !== this.lastStatus) {
+          const icon = status !== 'Started' ? this.iconTrayAlert : this.iconTray;
+          this.mainWindow.tray.setImage(icon);
+          this.lastStatus = status;
+        }
+      }, 5000);
+    }
 
     const self = this;
     const serviceMenuItems = [

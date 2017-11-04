@@ -107,7 +107,7 @@ export default function init() {
   console.log('        modeInstalled: ', modeInstalled);
   console.log('        __dirname: ', dirname);
   console.log('        app.getAppPath: ', appPath);
-  console.log('        env: ', process.env);
+  // console.log('        env: ', process.env);
 
   if (modeCounter !== 1 &&
     // when in installed mode, production flag is also true, which is okay

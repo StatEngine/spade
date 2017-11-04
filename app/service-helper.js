@@ -12,6 +12,14 @@ export default class ServiceHelper {
   }
 
   static get EXE() {
+    if (ServiceHelper.appMode() !== 'installed') {
+      console.log('================================================================================================');
+      console.log('=   MS Windows service-helper should only be used when ServiceHelper.appMode === "installed"   =');
+      console.log('================================================================================================');
+
+      console.log(new Error('Invalid Service Status Stack Trace: ').stack);
+    }
+
     const p = path.join(ServiceHelper.dirname, 'spade-service.exe');
     //console.log(`----[ path to exe: "${p}"\n`);
     return `"${p}"`;

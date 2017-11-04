@@ -37,9 +37,12 @@ export default class Status extends Component {
   }
 
   componentDidMount() {
-    this.setState({
-      intervalId: setInterval(() => this.setStatus(ServiceHelper.status()), 5000)
-    });
+    // Only start the hartbeat if we are in the "installed mode"
+    if (ServiceHelper.appMode() === 'installed') {
+      this.setState({
+        intervalId: setInterval(() => this.setStatus(ServiceHelper.status()), 5000)
+      });
+    }
   }
 
   componentWillUnmount() {
