@@ -1,10 +1,10 @@
 {
   "sources": {
-    "cadDb": {
+    "rms": {
       "enabled": true,
       "destination": "incidents",
       "trigger": {
-        "schedule": "*/1 * * * *"
+        "schedule": "*/10 * * * * *"
       },
       "ffx": {
         "user": "uaWs1QvzvqOazBAT",
