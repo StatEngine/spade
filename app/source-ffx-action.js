@@ -315,11 +315,13 @@ export default class SourceFfxAction extends SourceAction {
           return func(self);
         })
         .catch((e) => {
-          console.log('====[ SourceFfxAction.run catch: ', e);
+          console.log('====[ SourceFfxAction.run catch. Will try again next scheduled cycle: ', e);
+          sql.close();
           reject(e);
         })
         .error((e) => {
-          console.log('====[ SourceFfxAction.run error: ', e);
+          console.log('====[ SourceFfxAction.run error. Will try again next scheduled cycle: ', e);
+          sql.close();
           reject(e);
         });
       });
