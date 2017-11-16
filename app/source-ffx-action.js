@@ -182,7 +182,7 @@ export default class SourceFfxAction extends SourceAction {
   static processIncident(id) {
     const p1 = SourceFfxAction.getEvent(id);
     const p2 = SourceFfxAction.getApparatus(id);
-    const p3 = SourceFfxAction.getPersonnel(id);
+    const p3 = SourceFfxAction.getPersonnel('un_hi_persl', id);
     const p4 = SourceFfxAction.getTimes(id);
 
     console.time('p1');
