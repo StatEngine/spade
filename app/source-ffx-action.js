@@ -215,10 +215,10 @@ export default class SourceFfxAction extends SourceAction {
 
   static findNewIncidents() {
     // TODO: improve query
-    return pool.request().query(`SELECT agency_event.eid
-      FROM agency_event
+    return pool.request().query(`SELECT TOP 500 agency_event.eid
+        FROM agency_event
       WHERE agency_event.eid IN (select agency_event.eid from agency_event inner join common_event on agency_event.eid=common_event.eid)
-      AND substring(agency_event.cdts, 0, 09)='20170101' AND agency_event.eid NOT IN (SELECT spade_log.event_id FROM spade_log);`);
+      AND agency_event.eid NOT IN (SELECT spade_log.event_id FROM spade_log);`);
   }
 
   static logIncident(eventId, closed) {
@@ -296,7 +296,7 @@ export default class SourceFfxAction extends SourceAction {
           .catch((e) => {
             console.log(`====[ Error processing: ${id.eid}, ${e.message}., ${e.stack}`);
           });
-        }, { concurrency: 1 });
+        }, { concurrency: 10 });
       }
       // if there is no more results just resolve
       return Promise.resolve();
